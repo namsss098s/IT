@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from .models import StaffProfile
+
 
 def login_view(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
 
@@ -10,7 +13,7 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect('/')
+            return redirect('dashboard')
         else:
             return render(request, 'login.html', {'error': 'Invalid credentials'})
 
@@ -19,4 +22,12 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return redirect('/login/')
+    return redirect('login')
+
+
+def dashboard(request):
+    profile = StaffProfile.objects.get(user=request.user)
+
+    return render(request, 'dashboard.html', {
+        'profile': profile
+    })
