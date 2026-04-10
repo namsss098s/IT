@@ -111,3 +111,12 @@ body{
     font-size:28px;
     font-weight:700;
 }
+.logout-btn{
+    text-decoration:none;
+    color:inherit;
+}
+
+.logout-btn:hover{
+    background:#ff4d4d;
+    color:white;
+}

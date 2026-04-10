@@ -85,10 +85,10 @@ WSGI_APPLICATION = 'library_system.wsgi.application'
 
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
+    'default': dj_database_url.parse(
+        "postgresql://postgres.daserwmgviqukyjhpdil:namblu2203204@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres",
         conn_max_age=600,
-        ssl_require=False
+        ssl_require=True
     )
 }
 # Password validation
