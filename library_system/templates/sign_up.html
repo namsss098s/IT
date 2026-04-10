@@ -1,0 +1,61 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+
+```
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/signup.css' %}">
+```
+
+</head>
+
+<body>
+
+<div class="signup-container">
+
+```
+<!-- LEFT -->
+<div class="signup-left">
+    <img src="{% static 'images/logo.png' %}" class="logo">
+    <h2>EAST ASIA UNIVERSITY OF TECHNOLOGY</h2>
+    <p>Create your account to access the system.</p>
+</div>
+
+<!-- RIGHT -->
+<div class="signup-right">
+
+    <a href="{% url 'accounts:login' %}" class="back-btn">BACK</a>
+
+    <h1>Sign Up</h1>
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'accounts:signup' %}">
+        {% csrf_token %}
+
+        <input type="text" name="username" placeholder="Username" required>
+
+        <input type="email" name="email" placeholder="Email" required>
+
+        <input type="password" name="password1" placeholder="Password" required>
+
+        <input type="password" name="password2" placeholder="Confirm Password" required>
+
+        <button type="submit">CREATE ACCOUNT</button>
+    </form>
+
+</div>
+```
+
+</div>
+
+</body>
+</html>

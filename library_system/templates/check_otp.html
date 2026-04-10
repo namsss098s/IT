@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/otp.css' %}">
+</head>
+
+<body>
+
+<div class="otp-container">
+
+    <!-- LEFT -->
+    <div class="otp-left">
+
+        <a href="{% url 'accounts:forgot_password' %}" class="back-btn">BACK</a>
+
+        <h1>Check your Mailbox</h1>
+        <p>Please enter the OTP to proceed</p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="text" name="otp" placeholder="OTP" required>
+
+            <button type="submit">VERIFY</button>
+        </form>
+
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="otp-right">
+        <img src="{% static 'images/logo.png' %}" class="logo">
+
+        <h2>EAST ASIA UNIVERSITY OF TECHNOLOGY</h2>
+
+        <p>Check email and enter otp code</p>
+    </div>
+
+</div>
+
+</body>
+</html>

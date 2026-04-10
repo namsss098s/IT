@@ -1,0 +1,72 @@
+body{
+    margin:0;
+    font-family:'Montserrat', sans-serif;
+    background:#f5f5f5;
+}
+
+.otp-container{
+    width:930px;
+    height:575px;
+    margin:50px auto;
+    background:white;
+    display:flex;
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.otp-left{
+    width:50%;
+    padding:50px;
+    position:relative;
+}
+
+.otp-right{
+    width:50%;
+    background:black;
+    color:white;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+}
+
+.logo{
+    width:150px;
+    margin-bottom:20px;
+}
+
+.otp-left input{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    margin-top:20px;
+}
+
+.otp-left button{
+    width:100%;
+    padding:12px;
+    background:black;
+    color:white;
+    border:none;
+    border-radius:10px;
+    margin-top:20px;
+    font-weight:600;
+}
+
+.back-btn{
+    position:absolute;
+    top:10px;
+    left:10px;
+    border:1px solid black;
+    padding:5px 10px;
+    font-size:12px;
+    text-decoration:none;
+    color:black;
+}
+
+.error{
+    margin-top:15px;
+    color:red;
+}

@@ -4,7 +4,7 @@ from django.db import models
 
 class StaffProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    phone = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20, blank=True, null=True)
     is_manager = models.BooleanField(default=False)
 
     def __str__(self):
