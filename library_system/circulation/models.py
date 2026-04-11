@@ -1,6 +1,5 @@
 from django.db import models
 from books.models import Book
-from members.models import Member
 from django.contrib.auth.models import User
 
 
@@ -22,6 +21,7 @@ class FineRule(models.Model):
 
 
 class BorrowTransaction(models.Model):
+
     STATUS_CHOICES = (
         ('borrowed', 'Borrowed'),
         ('returned', 'Returned'),
@@ -29,8 +29,20 @@ class BorrowTransaction(models.Model):
     )
 
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    member = models.ForeignKey(Member, on_delete=models.CASCADE)
-    staff = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    member = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='borrowed_transactions'
+    )
+
+    staff = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='processed_transactions'
+    )
 
     borrow_date = models.DateTimeField(auto_now_add=True)
     due_date = models.DateTimeField()

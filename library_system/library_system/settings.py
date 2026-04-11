@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'accounts',
     'books',
     'circulation',
-    'members',
     'reports',
 ]
 

@@ -7,7 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.conf import settings
-
+from books.models import Book
+#from circulation.models import BorrowRecord
 import random
 import time
 
@@ -48,12 +49,27 @@ def redirect_dashboard(request):
 
 @login_required
 def admin_dashboard(request):
-    profile = request.user.staffprofile
 
-    if not (request.user.is_superuser or profile.is_manager):
-        return redirect('accounts:user_dashboard')
+    if request.user.role not in ['admin', 'librarian']:
+        return redirect('user_dashboard')
 
-    return render(request, 'admin_dashboard.html', {'profile': profile})
+    total_users = User.objects.filter(is_staff=False, is_superuser=False).count()
+    total_books = Book.objects.count()
+
+    total_borrowed = BorrowRecord.objects.filter(status='borrowed').count()
+    total_returned = BorrowRecord.objects.filter(status='returned').count()
+
+    overdue = BorrowRecord.objects.filter(status='borrowed', is_overdue=True).count()
+
+    return render(request, 'dashboard/admin_dashboard.html', {
+        'total_users': total_users,
+        'total_books': total_books,
+        'total_borrowed': total_borrowed,
+        'total_returned': total_returned,
+        'overdue': overdue,
+        'staffs': StaffProfile.objects.get(user=request.user).is_superuser or StaffProfile.objects.get(user=request.user).is_manager,
+        'overdue_records': BorrowRecord.objects.filter(status='borrowed', is_overdue=True),
+    })
 
 
 @login_required
