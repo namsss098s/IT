@@ -1,0 +1,77 @@
+{% extends "user_base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/rules.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="rules-container">
+
+    <!-- HEADER -->
+    <div class="rules-header">
+        <h2>Library Rules</h2>
+        <p>Borrowing regulations and penalty policy</p>
+    </div>
+
+    <!-- TABLE -->
+    <div class="rules-table-wrapper">
+
+        <table class="rules-table">
+
+            <thead>
+                <tr>
+                    <th style="width: 80px;">No</th>
+                    <th>Rules</th>
+                    <th style="width: 250px;">Penalty / Limit</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for rule in rules %}
+
+                <tr>
+                    <td class="center">{{ forloop.counter }}</td>
+
+                    <td class="rule-desc">
+                        {{ rule.description }}
+                    </td>
+
+                    <td class="penalty">
+
+                        {% if rule.max_days %}
+                            <div>⏳ Max borrow: <b>{{ rule.max_days }} days</b></div>
+                        {% endif %}
+
+                        {% if rule.max_books %}
+                            <div>📚 Max books: <b>{{ rule.max_books }}</b></div>
+                        {% endif %}
+
+                        {% if rule.fine_per_day %}
+                            <div>💰 Fine: <b>{{ rule.fine_per_day }} / day</b></div>
+                        {% endif %}
+
+                    </td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="3" class="empty">
+                        No rules available
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

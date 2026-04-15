@@ -1,0 +1,55 @@
+{% extends "user_base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="profile-container">
+
+    <div class="profile-card">
+
+        <div class="profile-header">
+            <h2>User Profile</h2>
+        </div>
+
+        <div class="profile-body">
+
+            <div class="profile-item">
+                <label>Username</label>
+                <span>{{ user.username }}</span>
+            </div>
+
+            <div class="profile-item">
+                <label>Email</label>
+                <span>{{ user.email }}</span>
+            </div>
+
+            <div class="profile-item">
+                <label>First Name</label>
+                <span>{{ user.first_name|default:"-" }}</span>
+            </div>
+
+            <div class="profile-item">
+                <label>Last Name</label>
+                <span>{{ user.last_name|default:"-" }}</span>
+            </div>
+
+            <div class="profile-item">
+                <label>Date Joined</label>
+                <span>{{ user.date_joined }}</span>
+            </div>
+
+        </div>
+
+        <div class="profile-actions">
+            <a href="#" class="btn-edit">Edit Profile</a>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

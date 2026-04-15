@@ -13,25 +13,19 @@
                 Manage borrow tickets (cart → confirm → return flow)
             </small>
         </div>
-
-        <!-- Confirm all pending tickets -->
-        <a href="{% url 'circulation:ticket_confirm' %}"
-           class="btn btn-dark">
-            Confirm Pending Ticket
-        </a>
     </div>
 
     <!-- =========================
         ERROR MESSAGE
     ========================== -->
     {% if error %}
-        <div class="alert alert-danger">
-            {{ error }}
-        </div>
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
     {% endif %}
 
     <!-- =========================
-        MAIN TABLE
+        TABLE
     ========================== -->
     <div class="card shadow-sm border-0">
         <div class="card-body">
@@ -41,7 +35,7 @@
                 <thead class="table-light">
                     <tr>
                         <th>ID</th>
-                        <th>Book</th>
+                        <th>Books</th>
                         <th>Member</th>
                         <th>Status</th>
                         <th>Borrow Date</th>
@@ -62,13 +56,18 @@
                         <!-- ID -->
                         <td class="fw-bold">{{ t.id }}</td>
 
-                        <!-- BOOK -->
+                        <!-- BOOKS -->
                         <td>
-                            {% if t.edition and t.edition.book %}
-                                {{ t.edition.book.title }}
-                            {% else %}
-                                <span class="text-muted">-</span>
-                            {% endif %}
+                            {% for item in t.items.all %}
+                            <div class="mb-1">
+                                <strong>{{ item.edition.book.title }}</strong>
+                                <small class="text-muted">
+                                    (x{{ item.quantity }})
+                                </small>
+                            </div>
+                            {% empty %}
+                            <span class="text-muted">-</span>
+                            {% endfor %}
                         </td>
 
                         <!-- MEMBER -->
@@ -79,43 +78,46 @@
                         <!-- STATUS -->
                         <td>
                             {% if t.status == 'PENDING' %}
-                                <span class="badge bg-warning text-dark">PENDING</span>
+                            <span class="badge bg-warning text-dark">PENDING</span>
 
                             {% elif t.status == 'BORROWED' %}
-                                <span class="badge bg-primary">BORROWED</span>
+                            <span class="badge bg-primary">BORROWED</span>
 
                             {% elif t.status == 'OVERDUE' %}
-                                <span class="badge bg-danger">OVERDUE</span>
+                            <span class="badge bg-danger">OVERDUE</span>
+
+                            {% elif t.status == 'RETURN_REQUESTED' %}
+                            <span class="badge bg-info text-dark">RETURN REQUESTED</span>
 
                             {% elif t.status == 'RETURNED' %}
-                                <span class="badge bg-success">RETURNED</span>
+                            <span class="badge bg-success">RETURNED</span>
                             {% endif %}
                         </td>
 
                         <!-- BORROW DATE -->
                         <td>
                             {% if t.borrow_date %}
-                                {{ t.borrow_date|date:"d-m-Y H:i" }}
+                            {{ t.borrow_date|date:"d-m-Y H:i" }}
                             {% else %}
-                                -
+                            -
                             {% endif %}
                         </td>
 
                         <!-- DUE DATE -->
                         <td>
                             {% if t.due_date %}
-                                {{ t.due_date|date:"d-m-Y H:i" }}
+                            {{ t.due_date|date:"d-m-Y H:i" }}
                             {% else %}
-                                -
+                            -
                             {% endif %}
                         </td>
 
                         <!-- RETURN DATE -->
                         <td>
                             {% if t.return_date %}
-                                {{ t.return_date|date:"d-m-Y H:i" }}
+                            {{ t.return_date|date:"d-m-Y H:i" }}
                             {% else %}
-                                -
+                            -
                             {% endif %}
                         </td>
 
@@ -132,19 +134,34 @@
                         <!-- ACTION -->
                         <td class="text-center">
 
-                            <!-- RETURN BUTTON -->
-                            {% if t.status == 'BORROWED' or t.status == 'OVERDUE' %}
-                                <a href="{% url 'circulation:return_ticket' t.id %}"
-                                   class="btn btn-sm btn-success">
-                                    Return
-                                </a>
-                            {% endif %}
-
-                            <!-- PENDING INFO -->
                             {% if t.status == 'PENDING' %}
-                                <span class="text-muted small">
-                                    Pending ticket (cart)
-                                </span>
+
+                            {% for t in tickets %}
+                                <a href="{% url 'circulation:ticket_confirm' t.id %}">
+                                    Confirm
+                                </a>
+                            {% endfor %}
+                            {% elif t.status == 'RETURN_REQUESTED' %}
+
+                            <form method="POST" action="{% url 'circulation:return_ticket' t.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-warning">
+                                    Approve Return
+                                </button>
+                            </form>
+
+                            {% elif t.status == 'BORROWED' or t.status == 'OVERDUE' %}
+
+                            <span class="text-muted small">
+                                Borrowed
+                            </span>
+
+                            {% elif t.status == 'RETURNED' %}
+
+                            <span class="text-success small">
+                                Returned
+                            </span>
+
                             {% endif %}
 
                         </td>

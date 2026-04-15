@@ -1,6 +1,6 @@
 import random
 import time
-
+from circulation.models import BorrowTransaction
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
@@ -87,10 +87,34 @@ def admin_dashboard(request):
     })
 
 
-@login_required
+
 def user_dashboard(request):
-    profile, _ = StaffProfile.objects.get_or_create(user=request.user)
-    return render(request, 'user_dashboard.html', {'profile': profile})
+
+    borrowed_count = BorrowTransaction.objects.filter(
+        member=request.user,
+        status="BORROWED"
+    ).count()
+
+    returned_count = BorrowTransaction.objects.filter(
+        member=request.user,
+        status="RETURNED"
+    ).count()
+
+    overdue_count = BorrowTransaction.objects.filter(
+        member=request.user,
+        status="OVERDUE"
+    ).count()
+
+    total_books = Book.objects.count()
+
+    context = {
+        "borrowed_count": borrowed_count,
+        "returned_count": returned_count,
+        "overdue_count": overdue_count,
+        "total_books": total_books
+    }
+
+    return render(request, "user_dashboard.html", context)
 
 def logout_view(request):
     logout(request)
@@ -322,4 +346,12 @@ def member_json(request, pk):
         "occupation": profile.occupation if profile else "",
         "role": profile.role if profile else "user",
         "points": profile.points if profile else 0,
+    })
+
+@login_required
+def profile_view(request):
+    user = request.user
+
+    return render(request, 'profile.html', {
+        'user': user
     })

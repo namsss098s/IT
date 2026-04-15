@@ -1,0 +1,52 @@
+{% extends 'user_base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="book-page">
+
+    <!-- HEADER -->
+    <div class="book-header">
+        <h2>Library Books</h2>
+
+        <div class="header-actions">
+            <input type="text" placeholder="Search..." class="search-box">
+            <a href="#" class="cart-btn">🛒 Your Cart</a>
+        </div>
+    </div>
+
+    <div class="book-grid">
+
+        {% for edition in editions %}
+        <div class="book-card"
+            onclick="openModal(
+                '{{ edition.book.title|escapejs }}',
+                '{{ edition.book.author|escapejs }}',
+                '{{ edition.book.category.name|escapejs }}',
+                '{{ edition.book.publisher|escapejs }}',
+                '{{ edition.available_quantity }}',
+                `{{ edition.book.description|escapejs }}`,
+                '{{ edition.book.image.url }}'
+            )">
+
+            <img src="{{ edition.book.image.url }}" alt="">
+
+            <div class="book-info">
+                <h4>{{ edition.book.title }}</h4>
+                <p>{{ edition.book.author }}</p>
+            </div>
+
+            <a href="{% url 'circulation:ticket_add' edition.id %}"
+            class="add-btn"
+            onclick="event.stopPropagation();">
+                Add to cart
+            </a>
+
+        </div>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

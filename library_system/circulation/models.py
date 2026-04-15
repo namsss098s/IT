@@ -26,8 +26,8 @@ class FineRule(models.Model):
 class BorrowTransaction(models.Model):
 
     STATUS_CHOICES = (
-        ('PENDING', 'Pending'),      # đang tạo ticket (UI add/remove)
-        ('BORROWED', 'Borrowed'),    # đã confirm
+        ('PENDING', 'Pending'),
+        ('BORROWED', 'Borrowed'),
         ('RETURNED', 'Returned'),
         ('OVERDUE', 'Overdue'),
     )
@@ -48,7 +48,6 @@ class BorrowTransaction(models.Model):
 
     borrow_date = models.DateTimeField(auto_now_add=True)
     due_date = models.DateTimeField(null=True, blank=True)
-
     return_date = models.DateTimeField(null=True, blank=True)
 
     status = models.CharField(
@@ -63,36 +62,31 @@ class BorrowTransaction(models.Model):
         default=0
     )
 
+    # =========================
+    # BUSINESS LOGIC
+    # =========================
+
+    def is_overdue(self):
+        return (
+            self.status == 'BORROWED'
+            and self.due_date
+            and timezone.now() > self.due_date
+        )
+
+    def calculate_fine(self, fine_per_day):
+        if not self.is_overdue():
+            return Decimal('0')
+
+        days = (timezone.now().date() - self.due_date.date()).days
+        return Decimal(days) * Decimal(str(fine_per_day))
+
+    def mark_overdue(self):
+        if self.is_overdue():
+            self.status = 'OVERDUE'
+            self.save()
+
     def __str__(self):
-        return f"Ticket #{self.id} - {self.member.username}"
-
-def is_overdue(self):
-    return (
-        self.status == 'BORROWED'
-        and timezone.now() > self.due_date
-    )
-def update_overdue():
-    BorrowTransaction.objects.filter(
-        status='BORROWED',
-        due_date__lt=timezone.now()
-    ).update(status='OVERDUE')
-
-def calculate_fine(self, fine_per_day):
-    if not self.is_overdue():
-        return Decimal('0')
-
-    days = (timezone.now().date() - self.due_date.date()).days
-    return Decimal(days) * Decimal(str(fine_per_day))
-
-def mark_overdue(self):
-    if self.is_overdue():
-        self.status = 'OVERDUE'
-        self.save()
-
-def __str__(self):
-    if self.edition:
-        return f"{self.edition.book.title} - {self.member.username}"
-    return f"Transaction - {self.member.username}"
+        return f"Transaction #{self.id} - {self.member.username}"
     
 class BorrowTransactionItem(models.Model):
 

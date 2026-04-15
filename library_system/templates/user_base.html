@@ -1,0 +1,133 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}User{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'css/user_base.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            📚
+        </div>
+
+        {% with url_name=request.resolver_match.url_name|default:'' %}
+        {% with app_name=request.resolver_match.app_name|default:'' %}
+
+        <ul class="menu">
+
+            <!-- DASHBOARD -->
+            <li class="{% if app_name == 'accounts' and url_name == 'user_dashboard' %}active{% endif %}">
+                <a href="{% url 'accounts:user_dashboard' %}">
+                    Dashboard
+                </a>
+            </li>
+
+            <!-- BOOKS -->
+            <li class="{% if app_name == 'books' and url_name == 'user_book_list' %}active{% endif %}">
+                <a href="{% url 'user_book_list' %}">
+                    Books
+                </a>
+            </li>
+
+            <!-- MY BOOKS -->
+            <li class="{% if app_name == 'circulation' and url_name == 'my_books' %}active{% endif %}">
+                <a href="{% url 'circulation:my_books' %}">
+                    My Books
+                </a>
+            </li>
+
+            <!-- HISTORY -->
+            <li class="{% if app_name == 'circulation' and url_name == 'borrow_history' %}active{% endif %}">
+                <a href="{% url 'circulation:borrow_history' %}">
+                    History
+                </a>
+            </li>
+
+            <!-- RULES -->
+            <li class="{% if app_name == 'circulation' and url_name == 'rules' %}active{% endif %}">
+                <a href="{% url 'circulation:rules' %}">
+                    Rules
+                </a>
+            </li>
+
+            <!-- PROFILE -->
+            <li class="{% if app_name == 'accounts' and url_name == 'profile' %}active{% endif %}">
+                <a href="{% url 'accounts:profile' %}">
+                    Profile
+                </a>
+            </li>
+
+        </ul>
+
+        {% endwith %}
+        {% endwith %}
+
+        <!-- LOGOUT -->
+        <a href="{% url 'accounts:logout' %}" class="logout-btn"
+           onclick="return confirm('Are you sure you want to logout?')">
+            Logout
+        </a>
+
+    </aside>
+
+    <!-- ================= MAIN ================= -->
+    <main class="main">
+
+        <!-- HEADER -->
+        <header class="header">
+
+            <div class="user-box">
+                <h4>{{ request.user.username }}</h4>
+                <span>User</span>
+            </div>
+
+            <div class="time-box">
+                <strong id="clock"></strong>
+                <p id="date"></p>
+            </div>
+
+        </header>
+
+        <!-- CONTENT -->
+        <section class="content">
+            {% block content %}
+            {% if messages %}
+            <div class="message-container">
+                {% for message in messages %}
+                    <div class="alert alert-success">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endblock %}
+        </section>
+
+    </main>
+
+</div>
+
+<!-- CLOCK -->
+<script>
+function updateTime() {
+    const now = new Date();
+    document.getElementById("clock").innerText = now.toLocaleTimeString();
+    document.getElementById("date").innerText = now.toDateString();
+}
+setInterval(updateTime, 1000);
+updateTime();
+</script>
+
+</body>
+</html>

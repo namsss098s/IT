@@ -1,92 +1,116 @@
+{% extends 'user_base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>User Dashboard</title>
-    <link rel="stylesheet" href="{% static 'css/user_dashboard.css' %}">
-</head>
-<body>
 
-<div class="layout">
+{% block title %}User Dashboard{% endblock %}
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="logo">📚</div>
+{% block content %}
 
-        <div class="menu active">🏠</div>
-        <div class="menu">📖</div>
-        <div class="menu">👤</div>
+<div class="dashboard-container">
 
-        <a href="{% url 'accounts:logout' %}" 
-            class="menu bottom logout-btn"
-            onclick="return confirm('Are you sure you want to logout?')">🚪</a>
+    <!-- ================= TOP HEADER ================= -->
+    <div class="dashboard-header">
+
+        <div class="welcome">
+            <h2>👋 Welcome back, {{ request.user.username }}</h2>
+            <p>Here’s your library overview today</p>
+        </div>
+
+        <div class="datetime-box">
+            <div id="time" class="time"></div>
+            <div id="date" class="date"></div>
+        </div>
+
     </div>
 
-    <!-- Main -->
-    <div class="main">
+    <!-- ================= STATS GRID ================= -->
+    <div class="stats-grid">
 
-        <!-- Topbar -->
-        <div class="topbar">
+        <div class="stat-card blue">
+            <div class="icon">📖</div>
+            <div class="content">
+                <h3>{{ borrowed_count|default:0 }}</h3>
+                <p>Borrowed</p>
+            </div>
+        </div>
+
+        <div class="stat-card green">
+            <div class="icon">📚</div>
+            <div class="content">
+                <h3>{{ returned_count|default:0 }}</h3>
+                <p>Returned</p>
+            </div>
+        </div>
+
+        <div class="stat-card red">
+            <div class="icon">⏰</div>
+            <div class="content">
+                <h3>{{ overdue_count|default:0 }}</h3>
+                <p>Overdue</p>
+            </div>
+        </div>
+
+        <div class="stat-card purple">
+            <div class="icon">📘</div>
+            <div class="content">
+                <h3>{{ total_books|default:0 }}</h3>
+                <p>Library Books</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= QUICK ACTIONS ================= -->
+    <div class="section-title">
+        Quick Actions
+    </div>
+
+    <div class="action-grid">
+
+        <a href="{% url 'circulation:my_books' %}" class="action-card">
+            <div class="icon">📖</div>
             <div>
-                <div class="username">{{ request.user.username }}</div>
-                <div class="role">User</div>
+                <h4>My Books</h4>
+                <p>View current borrows</p>
             </div>
+        </a>
 
-            <div class="datetime">
-                <div id="time"></div>
-                <div id="date"></div>
+        <a href="{% url 'circulation:borrow_history' %}" class="action-card">
+            <div class="icon">📚</div>
+            <div>
+                <h4>History</h4>
+                <p>Borrow & return history</p>
             </div>
-        </div>
+        </a>
 
-        <!-- Cards -->
-        <div class="cards">
-
-            <div class="card">
-                <div class="icon-box">📖</div>
-                <div class="card-text">
-                    Your Borrowed <br> Book List
-                </div>
+        <a href="{% url 'user_book_list' %}" class="action-card">
+            <div class="icon">📘</div>
+            <div>
+                <h4>Browse Books</h4>
+                <p>Explore library catalog</p>
             </div>
+        </a>
 
-            <div class="card">
-                <div class="icon-box">📚</div>
-                <div class="card-text">
-                    Your Returned <br> Book List
-                </div>
+        <a href="{% url 'circulation:rules' %}" class="action-card">
+            <div class="icon">📄</div>
+            <div>
+                <h4>Rules</h4>
+                <p>Library regulations</p>
             </div>
-
-            <div class="card">
-                <div class="icon-box">📘</div>
-                <div class="card-text">
-                    Let's browse available book inventory
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="icon-box">📄</div>
-                <div class="card-text">
-                    View Rules
-                </div>
-            </div>
-
-        </div>
+        </a>
 
     </div>
 
 </div>
 
+<!-- CLOCK -->
 <script>
-function updateTime(){
+function updateTime() {
     const now = new Date();
-    document.getElementById("time").innerHTML =
-        now.toLocaleTimeString();
-    document.getElementById("date").innerHTML =
-        now.toDateString();
+    document.getElementById("time").innerText = now.toLocaleTimeString();
+    document.getElementById("date").innerText = now.toDateString();
 }
-setInterval(updateTime,1000)
-updateTime()
+setInterval(updateTime, 1000);
+updateTime();
 </script>
 
-</body>
-</html>
+{% endblock %}

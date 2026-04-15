@@ -1,0 +1,100 @@
+.mybook-container {
+    background: #F2F2F2;
+    min-height: 100vh;
+    padding: 100px 80px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* HEADER */
+.mybook-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.mybook-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.mybook-search input {
+    width: 260px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    outline: none;
+}
+
+/* GRID */
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+/* CARD */
+.book-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+/* IMAGE */
+.book-image img {
+    width: 160px;
+    height: 240px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* INFO */
+.book-info h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.book-info .desc {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+/* BUTTON */
+.btn-detail {
+    display: inline-block;
+    margin-top: 10px;
+    background: black;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.btn-detail:hover {
+    background: #333;
+}
+
+/* EMPTY */
+.empty {
+    margin-left: 20px;
+    color: #777;
+}
+
+/* PAGINATION */
+.pagination {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.pagination a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: black;
+    font-weight: 500;
+}

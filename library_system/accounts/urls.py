@@ -10,6 +10,7 @@ urlpatterns = [
 
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('user-dashboard/', views.user_dashboard, name='user_dashboard'),
+    path('redirect-dashboard/', views.redirect_dashboard, name='redirect_dashboard'),
 
     path('forgot-password/', views.forgot_password, name='forgot_password'),
     path('check-otp/', views.verify_otp, name='verify_otp'),
@@ -21,4 +22,5 @@ urlpatterns = [
     path('members/update/<int:pk>/', views.member_update, name='member_update'),
     path('members/delete/<int:pk>/', views.member_delete, name='member_delete'),
     path('members/<int:pk>/json/', views.member_json, name='member_json'),
+    path('profile/', views.profile_view, name='profile'),
 ]

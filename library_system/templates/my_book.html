@@ -1,0 +1,70 @@
+{% extends "user_base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/my_book.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="mybook-container">
+
+    <div class="mybook-header">
+        <h2>My Books (Borrowing)</h2>
+    </div>
+
+    <div class="book-grid">
+
+        {% for borrow in borrows %}
+
+        {% for item in borrow.items.all %}
+
+        <div class="book-card">
+
+            <div class="book-image">
+                {% if item.edition.book.image %}
+                <img src="{{ item.edition.book.image.url }}" alt="{{ item.edition.book.title }}">
+                {% endif %}
+            </div>
+
+            <div class="book-info">
+
+                <h3>{{ item.edition.book.title }}</h3>
+
+                <p class="desc">
+                    {{ item.edition.book.description|truncatewords:20 }}
+                </p>
+
+                <p><b>Category:</b> {{ item.edition.book.category.name }}</p>
+
+                <p><b>Edition:</b> {{ item.edition.edition_number }}</p>
+
+                <p><b>Borrow Date:</b> {{ borrow.borrow_date }}</p>
+                <p><b>Due Date:</b> {{ borrow.due_date }}</p>
+
+                <a href="{% url 'book_detail' item.edition.book.id %}" class="btn-detail">
+                    View Book
+                </a>
+
+                <form method="POST" action="{% url 'circulation:return_ticket' borrow.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-return">
+                        Return Book
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+        {% empty %}
+        <p class="empty">You have no borrowed books.</p>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

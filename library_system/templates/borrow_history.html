@@ -1,0 +1,68 @@
+{% extends "user_base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/history.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="history-container">
+
+    <div class="history-header">
+        <h2>Borrow History</h2>
+    </div>
+
+    <div class="history-table">
+
+        <!-- HEADER -->
+        <div class="history-row header">
+            <span>ID</span>
+            <span>Borrow Date</span>
+            <span>Due Date</span>
+            <span>Status</span>
+            <span>Fine</span>
+        </div>
+
+        <!-- DATA -->
+        {% for borrow in borrows %}
+
+        <div class="history-row">
+
+            <span>#{{ borrow.id }}</span>
+
+            <span>
+                {{ borrow.borrow_date|date:"d M Y H:i" }}
+            </span>
+
+            <span>
+                {{ borrow.due_date|date:"d M Y H:i" }}
+            </span>
+
+            <span>
+                {% if borrow.status == "BORROWED" %}
+                    <span class="badge borrowed">Borrowed</span>
+                {% elif borrow.status == "RETURNED" %}
+                    <span class="badge returned">Returned</span>
+                {% elif borrow.status == "OVERDUE" %}
+                    <span class="badge overdue">Overdue</span>
+                {% else %}
+                    <span class="badge pending">Pending</span>
+                {% endif %}
+            </span>
+
+            <span>
+                {{ borrow.fine_amount }} VND
+            </span>
+
+        </div>
+
+        {% empty %}
+        <p class="empty">No borrow history found.</p>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

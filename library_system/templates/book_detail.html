@@ -19,7 +19,7 @@
         <div class="title">Book Detail</div>
 
         <div class="actions">
-            <a href="{% url 'accounts:admin_dashboard' %}" class="btn btn-back">Back</a>
+            <a href="{% url 'accounts:redirect_dashboard' %}" class="btn btn-back">Back</a>
             <button class="btn btn-edit"
                     onclick="openUpdateModal(this)"
                     data-id="{{ book.id }}">
