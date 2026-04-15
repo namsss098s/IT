@@ -1,0 +1,197 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+
+{% block title %}User Management{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/user_management.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h2>User Management</h2>
+
+    <div class="actions">
+        <input type="text" placeholder="Search..." class="search-box">
+
+        <button class="btn-add" onclick="openModal()">+ Add User</button>
+    </div>
+</div>
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Occupation</th>
+                <th>Points</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+       <tbody>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.id|default:"-" }}</td>
+                <td>{{ u.username|default:"No data" }}</td>
+                <td>{{ u.email|default:"-" }}</td>
+                <td>{{ u.staffprofile.phone|default:"-" }}</td>
+                <td>{{ u.staffprofile.role|default:"-" }}</td>
+                <td>{{ u.staffprofile.occupation|default:"-" }}</td>
+                <td>{{ u.staffprofile.points|default:0 }}</td>
+
+                <td>
+
+                    {% if u.id %}
+
+                    <button class="btn-edit" onclick="openEditModal('{{ u.id }}')">
+                        Edit
+                    </button>
+                    <form method="POST" action="{% url 'accounts:member_delete' u.id %}" 
+                        onsubmit="return confirm('Delete this user?');">
+                        {% csrf_token %}
+                        <button class="btn-delete">Delete</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8">No data in database</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- MODAL ADD USER -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <h3>Add User</h3>
+
+        <form method="POST" action="{% url 'accounts:member_create' %}">
+            {% csrf_token %}
+
+            <!-- USER -->
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="email" name="email" placeholder="Email">
+            <input type="password" name="password" placeholder="Password" required>
+
+            <!-- PROFILE -->
+            <input type="text" name="phone" placeholder="Phone">
+            <input type="text" name="occupation" placeholder="Occupation">
+            <input type="number" name="points" placeholder="Points" value="0">
+
+            <!-- ROLE -->
+            <select name="role">
+                <option value="user">User</option>
+                <option value="librarian">Librarian</option>
+                <option value="admin">Admin</option>
+            </select>
+
+            <div class="modal-actions">
+                <button type="submit" class="btn-add">Add</button>
+                <button type="button" onclick="closeModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="editModal" class="modal">
+    <div class="modal-content">
+
+        <form method="POST" id="editForm">
+            {% csrf_token %}
+
+            <h3>Edit User</h3>
+
+            <input type="text" name="username" id="edit_username">
+            <input type="email" name="email" id="edit_email">
+
+            <input type="text" name="phone" id="edit_phone">
+            <input type="text" name="occupation" id="edit_occupation">
+            <input type="number" name="points" id="edit_points">
+
+            <select name="role" id="edit_role">
+                <option value="user">User</option>
+                <option value="librarian">Librarian</option>
+                <option value="admin">Admin</option>
+            </select>
+
+            <div class="modal-actions">
+                <button type="submit" class="btn-save">Save</button>
+                <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+
+{% if u.id %}
+<div class="modal fade" id="deleteModal{{ u.id }}" tabindex="-1">
+
+    <form method="POST" action="{% url 'accounts:member_delete' u.id %}">
+        {% csrf_token %}
+
+        <div class="modal-body">
+            Are you sure delete <b>{{ u.username }}</b>?
+        </div>
+
+        <button type="submit">Delete</button>
+    </form>
+
+</div>
+{% endif %}
+
+
+<script>
+function openModal() {
+    document.getElementById('modal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+}
+
+document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const id = this.dataset.id;
+        openDeleteModal(id);
+    });
+});
+
+function openEditModal(id) {
+    fetch(`/accounts/members/${id}/json/`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('edit_username').value = data.username;
+            document.getElementById('edit_email').value = data.email;
+            document.getElementById('edit_phone').value = data.phone;
+            document.getElementById('edit_occupation').value = data.occupation;
+            document.getElementById('edit_role').value = data.role;
+            document.getElementById('edit_points').value = data.points;
+
+            document.getElementById('editForm').action = `/accounts/members/update/${id}/`;
+
+            document.getElementById('editModal').style.display = 'block';
+        });
+}
+
+function openDeleteModal(id) {
+    document.getElementById('deleteForm').action =
+        `/accounts/members/delete/${id}/`;
+
+    document.getElementById('deleteModal').style.display = 'block';
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+</script>
+
+{% endblock %}

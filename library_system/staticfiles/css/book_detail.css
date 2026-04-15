@@ -1,0 +1,98 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: #f5f5f5;
+    margin: 0;
+}
+
+/* CONTAINER */
+.container {
+    width: 900px;
+    margin: 50px auto;
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+/* HEADER */
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e8e8e8;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #151619;
+}
+
+/* BUTTONS */
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-back {
+    background: #e6e6e6;
+    color: black;
+}
+
+.btn-edit {
+    background: black;
+    color: white;
+}
+
+/* GRID */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* CARD */
+.card {
+    background: white;
+    border: 1px solid #e8e8e8;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+/* LABEL */
+.label {
+    font-size: 12px;
+    color: #727374;
+    margin-bottom: 6px;
+}
+
+/* VALUE */
+.value {
+    font-size: 14px;
+    font-weight: 500;
+    color: black;
+}
+
+/* FULL WIDTH */
+.full {
+    grid-column: span 2;
+}
+
+/* DESCRIPTION */
+.description {
+    min-height: 120px;
+    white-space: pre-line;
+    line-height: 1.5;
+}

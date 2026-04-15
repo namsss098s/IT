@@ -1,12 +1,15 @@
 from django.db import models
-from books.models import Book
 from django.contrib.auth.models import User
+from django.utils import timezone
+from decimal import Decimal
+
+from books.models import Edition
 
 
 class BorrowRule(models.Model):
     description = models.TextField()
-    max_days = models.IntegerField()
-    max_books = models.IntegerField()
+    max_days = models.PositiveIntegerField(default=7)
+    max_books = models.PositiveIntegerField(default=3)
 
     def __str__(self):
         return self.description
@@ -14,7 +17,7 @@ class BorrowRule(models.Model):
 
 class FineRule(models.Model):
     description = models.TextField()
-    fine_per_day = models.DecimalField(max_digits=6, decimal_places=2)
+    fine_per_day = models.DecimalField(max_digits=6, decimal_places=2, default=0)
 
     def __str__(self):
         return self.description
@@ -23,12 +26,11 @@ class FineRule(models.Model):
 class BorrowTransaction(models.Model):
 
     STATUS_CHOICES = (
-        ('borrowed', 'Borrowed'),
-        ('returned', 'Returned'),
-        ('overdue', 'Overdue'),
+        ('PENDING', 'Pending'),      # đang tạo ticket (UI add/remove)
+        ('BORROWED', 'Borrowed'),    # đã confirm
+        ('RETURNED', 'Returned'),
+        ('OVERDUE', 'Overdue'),
     )
-
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
 
     member = models.ForeignKey(
         User,
@@ -45,12 +47,67 @@ class BorrowTransaction(models.Model):
     )
 
     borrow_date = models.DateTimeField(auto_now_add=True)
-    due_date = models.DateTimeField()
+    due_date = models.DateTimeField(null=True, blank=True)
+
     return_date = models.DateTimeField(null=True, blank=True)
 
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='PENDING'
+    )
 
-    fine_amount = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    fine_amount = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        default=0
+    )
 
     def __str__(self):
-        return f"{self.book} - {self.member}"
+        return f"Ticket #{self.id} - {self.member.username}"
+
+def is_overdue(self):
+    return (
+        self.status == 'BORROWED'
+        and timezone.now() > self.due_date
+    )
+def update_overdue():
+    BorrowTransaction.objects.filter(
+        status='BORROWED',
+        due_date__lt=timezone.now()
+    ).update(status='OVERDUE')
+
+def calculate_fine(self, fine_per_day):
+    if not self.is_overdue():
+        return Decimal('0')
+
+    days = (timezone.now().date() - self.due_date.date()).days
+    return Decimal(days) * Decimal(str(fine_per_day))
+
+def mark_overdue(self):
+    if self.is_overdue():
+        self.status = 'OVERDUE'
+        self.save()
+
+def __str__(self):
+    if self.edition:
+        return f"{self.edition.book.title} - {self.member.username}"
+    return f"Transaction - {self.member.username}"
+    
+class BorrowTransactionItem(models.Model):
+
+    transaction = models.ForeignKey(
+        BorrowTransaction,
+        on_delete=models.CASCADE,
+        related_name='items'
+    )
+
+    edition = models.ForeignKey(
+        Edition,
+        on_delete=models.CASCADE
+    )
+
+    quantity = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.edition.book.title}"

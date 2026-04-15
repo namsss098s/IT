@@ -1,0 +1,298 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+{% block title %}Books{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/book_management.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="top-bar">
+    <h1>Book Management</h1>
+
+    <a href="javascript:void(0)" class="btn-add" onclick="openModal()">
+        + Add Book
+    </a>
+</div>
+
+<!-- 🔍 SEARCH + FILTER (RELOAD) -->
+<form method="GET" class="search-box">
+
+    <input 
+        type="text" 
+        name="q"
+        placeholder="Search by name, author..."
+        value="{{ query }}"
+    >
+
+    <select name="category">
+        <option value="">All Categories</option>
+        {% for c in categories %}
+            <option value="{{ c.id }}"
+                {% if selected_category == c.id|stringformat:"s" %}selected{% endif %}>
+                {{ c.name }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <button type="submit" class="btn-search">
+        Search
+    </button>
+
+</form>
+
+<div id="bookTable">
+
+    <div class="table-container">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Book Name</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Publisher</th>
+                    <th>Authors</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for book in page_obj %}
+               <tr>
+                    <td>{{ book.id }}</td>
+
+                    <td>
+                        <a href="{% url 'book_detail' book.id %}">
+                            {{ book.title }}
+                        </a>
+                    </td>
+
+                    <td>{{ book.category }}</td>
+
+                    <td>{{ book.description|truncatewords:5 }}</td>
+
+                    <td>{{ book.price }} VNĐ</td>
+
+                    <td>{{ book.publisher }}</td>
+
+                    <td>
+                        {% for author in book.authors.all %}
+                            {{ author.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+
+                    <td>
+                        <button class="edit-btn"
+                            data-id="{{ book.id }}"
+                            data-title="{{ book.title }}"
+                            data-publisher="{{ book.publisher }}"
+                            data-price="{{ book.price }}"
+                            data-description="{{ book.description }}"
+                            data-category="{{ book.category.id }}"
+                            data-authors="{% for a in book.authors.all %}{{ a.id }},{% endfor %}"
+                            onclick="openUpdateModal(this)">
+                            Edit
+                        </button>
+
+                        <button type="button"
+                                class="btn-delete"
+                                onclick="openDeleteModal('{{ book.id }}')">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8">No books found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+
+        </table>
+
+        <!-- 📄 PAGINATION (RELOAD) -->
+        <div class="pagination">
+
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}&q={{ query }}&category={{ selected_category }}">
+                    Prev
+                </a>
+            {% endif %}
+
+            <span>
+                Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&q={{ query }}&category={{ selected_category }}">
+                    Next
+                </a>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===== ADD BOOK MODAL ===== -->
+<div id="bookModal" class="modal">
+    <div class="modal-content">
+
+        <h2>Add Book</h2>
+
+        <form method="POST" action="{% url 'book_create' %}">
+            {% csrf_token %}
+
+            <!-- TITLE -->
+            <input type="text" name="title" placeholder="Book name" required>
+
+            <!-- CATEGORY (FIX REQUIRED) -->
+            <select name="category" required>
+                <option value="">-- Select Category --</option>
+                {% for c in categories %}
+                    <option value="{{ c.id }}">{{ c.name }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- PUBLISHER -->
+            <input type="text" name="publisher" placeholder="Publisher">
+
+            <!-- PRICE -->
+            <input type="number" name="price" placeholder="Price (VND)">
+
+            <!-- AUTHORS (FIX UI + dễ chọn hơn) -->
+            <select name="authors" multiple size="5">
+                {% for a in authors %}
+                    <option value="{{ a.id }}">{{ a.name }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- DESCRIPTION -->
+            <textarea name="description" placeholder="Description"></textarea>
+
+            <!-- EDITION -->
+            <div class="edition-box">
+                <input type="number" name="edition_number" placeholder="Edition">
+                <input type="number" name="quantity" placeholder="Quantity">
+            </div>
+
+            <!-- BUTTON -->
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn-add">Add</button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- ===== UPDATE (NO AJAX) ===== -->
+<div id="updateModal" class="modal">
+    <div class="modal-content">
+
+        <h2>Update Book</h2>
+
+        <form method="POST" id="updateForm">
+            {% csrf_token %}
+
+            <input type="hidden" name="book_id" id="update_book_id">
+
+            <input type="text" name="title" id="update_title" required>
+            <input type="text" name="publisher" id="update_publisher">
+            <input type="number" name="price" id="update_price">
+            <textarea name="description" id="update_description"></textarea>
+
+            <select name="category" id="update_category" required>
+                {% for c in categories %}
+                    <option value="{{ c.id }}">{{ c.name }}</option>
+                {% endfor %}
+            </select>
+
+            <div>
+                {% for a in authors %}
+                <label>
+                    <input type="checkbox" name="authors" value="{{ a.id }}">
+                    {{ a.name }}
+                </label>
+                {% endfor %}
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeupdateModal()">Cancel</button>
+                <button type="submit" class="btn-update">Update</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<!-- ===== DELETE ===== -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <form method="POST" action="{% url 'book_delete' %}">
+            {% csrf_token %}
+            <input type="hidden" name="book_id" id="delete_book_id">
+
+                <h2>Delete Confirmation</h2>
+
+                <form method="POST" action="{% url 'book_delete' %}">
+                    {% csrf_token %}
+
+                    <input type="hidden" name="book_id" id="delete_book_id">
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn-cancel" onclick="closedeleteModal()">Cancel</button>
+                        <button type="submit" class="btn-delete">Delete</button>
+                    </div>
+                </form>
+
+    </div>
+</div>
+
+<script>
+function openModal() {
+    document.getElementById("bookModal").style.display = "flex";
+}
+function closeupdateModal() {
+    document.getElementById("updateModal").style.display = "none";
+}
+function closedeleteModal() {
+    document.getElementById("deleteModal").style.display = "none";
+}
+
+function openUpdateModal(btn) {
+    const id = btn.dataset.id;
+
+    document.getElementById("updateModal").style.display = "flex";
+
+    // 🔥 FIX ACTION
+    document.getElementById("updateForm").action = `/books/${id}/update/`;
+
+    document.getElementById("update_title").value = btn.dataset.title;
+    document.getElementById("update_publisher").value = btn.dataset.publisher;
+    document.getElementById("update_price").value = btn.dataset.price;
+    document.getElementById("update_description").value = btn.dataset.description;
+    document.getElementById("update_category").value = btn.dataset.category;
+
+    // authors
+    const authors = btn.dataset.authors
+        ? btn.dataset.authors.split(',').filter(a => a).map(Number)
+        : [];
+
+    document.querySelectorAll('input[name="authors"]').forEach(cb => {
+        cb.checked = authors.includes(parseInt(cb.value));
+    });
+}
+function openDeleteModal(id) {
+    document.getElementById("deleteModal").style.display = "flex";
+
+    // 🔥 FIX QUAN TRỌNG
+    document.getElementById("delete_book_id").value = id;
+}
+</script>
+{% endblock %}

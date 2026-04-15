@@ -5,6 +5,5 @@ from .models import StaffProfile
 
 
 @receiver(post_save, sender=User)
-def create_profile(sender, instance, created, **kwargs):
-    if created:
-        StaffProfile.objects.create(user=instance)
+def create_or_update_profile(sender, instance, created, **kwargs):
+    StaffProfile.objects.get_or_create(user=instance)

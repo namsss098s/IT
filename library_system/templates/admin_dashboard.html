@@ -1,167 +1,34 @@
-{% load static %}
-<!DOCTYPE html>
-<html>
+{% extends 'admin_base.html' %}
 
-<head>
-    <title>Admin Dashboard</title>
+{% block title %}Dashboard{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-</head>
+{% block content %}
 
-<body>
-
-<div class="dashboard">
-
-    <!-- Sidebar -->
-    <div class="sidebar">
-
-        <div class="logo">
-            <img src="{% static 'images/logo.png' %}" alt="logo">
-        </div>
-
-        <ul class="menu">
-            <li class="active">Dashboard</li>
-            <li>Books</li>
-            <li>Members</li>
-            <li>Circulation</li>
-            <li>Reports</li>
-        </ul>
-
-        <div>
-            <a href="{% url 'accounts:logout' %}"
-               class="menu bottom logout-btn"
-               style="color:white; padding:15px 30px;"
-               onclick="return confirm('Are you sure you want to logout?')">
-                Logout
-            </a>
-        </div>
-
+<div class="stats">
+    <div class="card">
+        <h1>{{ total_users }}</h1>
+        <p>Total Members</p>
     </div>
 
-
-    <!-- Main -->
-    <div class="main">
-
-        <!-- Header -->
-        <div class="header">
-
-            <div>
-                <h4>{{ request.user.username }}</h4>
-                <span>{{ request.user.role|title }}</span>
-            </div>
-
-            <div class="time">
-                <strong id="clock"></strong>
-                <p id="date"></p>
-            </div>
-
-        </div>
-
-
-        <!-- Content -->
-        <div class="content">
-
-
-            <!-- Stats -->
-            <div class="stats">
-
-                <div class="card">
-                    <h1>{{ total_users }}</h1>
-                    <p>Total Members</p>
-                </div>
-
-                <div class="card">
-                    <h1>{{ total_books }}</h1>
-                    <p>Total Books</p>
-                </div>
-
-                <div class="card">
-                    <h1>{{ total_borrowed }}</h1>
-                    <p>Borrowed Books</p>
-                </div>
-
-                <div class="card">
-                    <h1>{{ total_returned }}</h1>
-                    <p>Returned Books</p>
-                </div>
-
-                <div class="card">
-                    <h1>{{ overdue }}</h1>
-                    <p>Overdue Books</p>
-                </div>
-
-            </div>
-
-
-            <!-- Bottom section -->
-            <div class="bottom">
-
-
-                <!-- Chart placeholder -->
-                <div class="chart">
-                    <div class="pie">
-                        <p style="text-align:center; padding-top:40px;">
-                            Chart Coming Soon
-                        </p>
-                    </div>
-                </div>
-
-
-                <!-- Staff -->
-                <div class="staff">
-
-                    <h3>Library Staff</h3>
-
-                    {% for s in staffs %}
-                        <p>👨‍💼 {{ s.username }}</p>
-                    {% empty %}
-                        <p>No staff found</p>
-                    {% endfor %}
-
-                </div>
-
-
-                <!-- Overdue -->
-                <div class="overdue">
-
-                    <h3>Overdue Borrowers</h3>
-
-                    {% for r in overdue_records %}
-                        <p>
-                            📕 {{ r.member.username }} - {{ r.book.title }}
-                        </p>
-                    {% empty %}
-                        <p>No overdue books</p>
-                    {% endfor %}
-
-                </div>
-
-            </div>
-
-        </div>
-
+    <div class="card">
+        <h1>{{ total_books }}</h1>
+        <p>Total Books</p>
     </div>
 
+    <div class="card">
+        <h1>{{ total_borrowed }}</h1>
+        <p>Borrowed Books</p>
+    </div>
+
+    <div class="card">
+        <h1>{{ total_returned }}</h1>
+        <p>Returned Books</p>
+    </div>
+
+    <div class="card">
+        <h1>{{ overdue }}</h1>
+        <p>Overdue Books</p>
+    </div>
 </div>
 
-
-<!-- Simple clock JS -->
-<script>
-    function updateTime() {
-        const now = new Date();
-
-        document.getElementById("clock").innerText =
-            now.toLocaleTimeString();
-
-        document.getElementById("date").innerText =
-            now.toDateString();
-    }
-
-    setInterval(updateTime, 1000);
-    updateTime();
-</script>
-
-</body>
-</html>
+{% endblock %}

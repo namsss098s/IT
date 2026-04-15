@@ -15,4 +15,10 @@ urlpatterns = [
     path('check-otp/', views.verify_otp, name='verify_otp'),
     path('resend-otp/', views.resend_otp, name='resend_otp'),
     path('reset-password/', views.reset_password, name='reset_password'),
+
+    path('members/', views.member_list, name='member_list'),
+    path('members/create/', views.member_create, name='member_create'),
+    path('members/update/<int:pk>/', views.member_update, name='member_update'),
+    path('members/delete/<int:pk>/', views.member_delete, name='member_delete'),
+    path('members/<int:pk>/json/', views.member_json, name='member_json'),
 ]

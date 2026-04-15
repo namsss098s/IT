@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Detail</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/book_detail.css' %}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="top">
+        <div class="title">Book Detail</div>
+
+        <div class="actions">
+            <a href="{% url 'accounts:admin_dashboard' %}" class="btn btn-back">Back</a>
+            <button class="btn btn-edit"
+                    onclick="openUpdateModal(this)"
+                    data-id="{{ book.id }}">
+                Edit
+            </button>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="grid">
+
+        <div class="card">
+            <div class="label">Book Name</div>
+            <div class="value">{{ book.title }}</div>
+        </div>
+
+        <div class="card">
+            <div class="label">Category</div>
+            <div class="value">{{ book.category.name }}</div>
+        </div>
+
+        <div class="card">
+            <div class="label">Publisher</div>
+            <div class="value">{{ book.publisher }}</div>
+        </div>
+
+        <div class="card">
+            <div class="label">Price</div>
+            <div class="value">{{ book.price }} VND</div>
+        </div>
+
+        <div class="card full">
+            <div class="label">Authors</div>
+            <div class="value">
+                {% for a in book.authors.all %}
+                    {{ a.name }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card full">
+            <div class="label">Description</div>
+            <div class="value description">
+                {{ book.description }}
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

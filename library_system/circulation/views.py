@@ -1,50 +1,113 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.utils import timezone
-from .models import BorrowTransaction, FineRule
-from .forms import BorrowForm
+from django.contrib.auth.decorators import login_required
+
+from .models import BorrowTransaction
+from .services import (
+    add_book_to_ticket,
+    remove_book_from_ticket,
+    confirm_ticket,
+    return_ticket,
+    get_or_create_pending_ticket
+)
 
 
-def borrow_list(request):
-    transactions = BorrowTransaction.objects.all().order_by('-borrow_date')
-    return render(request, 'circulation/borrow_list.html', {'transactions': transactions})
 
 
-def borrow_book(request):
-    form = BorrowForm(request.POST or None)
 
-    if form.is_valid():
-        transaction = form.save(commit=False)
-        transaction.staff = request.user
-        transaction.status = 'borrowed'
-        transaction.save()
-        return redirect('borrow_list')
+# =========================
+# TICKET MANAGEMENT (MAIN DASHBOARD)
+# =========================
+@login_required
+def ticket_management_view(request):
+    ticket = get_or_create_pending_ticket(request.user)
 
-    return render(request, 'circulation/borrow_form.html', {'form': form})
-
-
-def return_book(request, pk):
-    transaction = get_object_or_404(BorrowTransaction, pk=pk)
-
-    transaction.return_date = timezone.now()
-    transaction.status = 'returned'
-
-    # calculate fine
-    if transaction.return_date > transaction.due_date:
-        days_overdue = (transaction.return_date - transaction.due_date).days
-        fine_rule = FineRule.objects.first()
-        if fine_rule:
-            transaction.fine_amount = days_overdue * fine_rule.fine_per_day
-
-    transaction.save()
-
-    return redirect('borrow_list')
+    return render(request, 'ticket_management.html', {
+        'ticket': ticket
+    })
 
 
-def mark_overdue():
-    transactions = BorrowTransaction.objects.filter(status='borrowed')
-    now = timezone.now()
+@login_required
+def add_to_ticket_view(request, edition_id):
 
-    for t in transactions:
-        if now > t.due_date:
-            t.status = 'overdue'
-            t.save()
+    if request.method != "GET":
+        return redirect('ticket_management')
+
+    result = add_book_to_ticket(
+        user=request.user,
+        edition_id=edition_id
+    )
+
+    if not result["success"]:
+        ticket = get_or_create_pending_ticket(request.user)
+        return render(request, 'ticket_management.html', {
+            'error': result["message"],
+            'ticket': ticket
+        })
+
+    return redirect('ticket_management')
+
+@login_required
+def remove_from_ticket_view(request, edition_id):
+
+    if request.method != "GET":
+        return redirect('ticket_management')
+
+    result = remove_book_from_ticket(
+        user=request.user,
+        edition_id=edition_id
+    )
+
+    if not result["success"]:
+        ticket = get_or_create_pending_ticket(request.user)
+        return render(request, 'ticket_management.html', {
+            'error': result["message"],
+            'ticket': ticket
+        })
+
+    return redirect('ticket_management')
+
+@login_required
+def confirm_ticket_view(request):
+
+    if request.method != "GET":
+        return redirect('ticket_management')
+
+    result = confirm_ticket(user=request.user)
+
+    if not result["success"]:
+        ticket = get_or_create_pending_ticket(request.user)
+        return render(request, 'ticket_management.html', {
+            'error': result["message"],
+            'ticket': ticket
+        })
+
+    return redirect('ticket_management')
+
+@login_required
+def return_ticket_view(request, pk):
+
+    result = return_ticket(
+        ticket_id=pk,
+        staff_user=request.user
+    )
+
+    if not result["success"]:
+        return redirect('borrow_history')
+
+    return redirect('borrow_history')
+
+@login_required
+def borrow_history_view(request):
+
+    tickets = BorrowTransaction.objects.filter(
+        status__in=['BORROWED', 'RETURNED', 'OVERDUE']
+    ).select_related(
+        'edition__book',
+        'member',
+        'staff'
+    ).order_by('-borrow_date')
+
+    return render(request, 'borrow_history.html', {
+        'tickets': tickets
+    })
+

@@ -1,0 +1,92 @@
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.search-box {
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.btn-add {
+    background: black;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+}
+
+.btn-edit {
+    background: orange;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    margin-right: 5px;
+}
+
+.btn-delete {
+    background: red;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 20%;
+    left: 40%;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.modal-content input {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 8px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+}
+.btn-save {
+    background: green;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+.btn-cancel {
+    background: gray;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+}

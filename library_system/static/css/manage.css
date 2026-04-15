@@ -1,0 +1,154 @@
+/* ===== RESET ===== */
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: #F2F2F2;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+    padding: 30px;
+    margin-left: 220px; /* nếu có sidebar */
+}
+
+/* ===== TAB ===== */
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    background: #DCDCDC;
+    font-weight: 600;
+    border-radius: 10px 10px 0 0;
+}
+
+.tab.active {
+    background: black;
+    color: white;
+}
+
+/* ===== TAB CONTENT ===== */
+.tab-content {
+    display: none;
+    background: white;
+    padding: 20px;
+    border-radius: 0 10px 10px 10px;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* ===== SECTION ===== */
+.section {
+    margin-bottom: 40px;
+}
+
+.section h3 {
+    margin-bottom: 10px;
+}
+
+/* ===== BUTTON ADD ===== */
+.btn-add {
+    background: black;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+/* ===== TABLE ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+table th {
+    background: #E4E4E4;
+    padding: 12px;
+    font-weight: 600;
+}
+
+table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.actions button {
+    margin: 0 5px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-edit {
+    background: #1351CB;
+    color: white;
+}
+
+.btn-delete {
+    background: #FF2626;
+    color: white;
+}
+
+/* ===== MODAL ===== */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    width: 400px;
+}
+
+/* ===== INPUT ===== */
+.modal-content input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+/* ===== MODAL ACTIONS ===== */
+.modal-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.modal-actions button {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.modal-actions button:first-child {
+    background: #ccc;
+}
+
+.modal-actions button:last-child {
+    background: black;
+    color: white;
+}

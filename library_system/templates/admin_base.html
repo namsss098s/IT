@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Admin{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+
+        <div class="logo">
+            <img src="{% static 'images/logo.png' %}" alt="logo">
+        </div>
+
+        <ul class="menu">
+
+            <li class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <a href="{% url 'accounts:admin_dashboard' %}">Dashboard</a>
+            </li>
+
+            <li class="{% if request.resolver_match.url_name == 'book_list' %}active{% endif %}">
+                <a href="{% url 'book_list' %}">Books</a>
+            </li>
+
+            <li class="{% if request.resolver_match.url_name == 'member_list' %}active{% endif %}">
+                <a href="{% url 'accounts:member_list' %}">Members</a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'circulation:ticket_management' %}active{% endif %}">
+                <a href="{% url 'circulation:ticket_management' %}">Circulation</a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'reports' %}active{% endif %}">
+                <a href="{% url 'accounts:admin_dashboard' %}">Reports</a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'manage_page' %}active{% endif %}">
+                <a href="{% url 'manage_page' %}">Extra</a>
+            </li>
+
+        </ul>
+
+        <a href="{% url 'accounts:logout' %}" class="menu bottom logout-btn"
+           onclick="return confirm('Are you sure you want to logout?')">
+            Logout
+        </a>
+
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h4>{{ request.user.username }}</h4>
+                <span>{{ request.user.role|title }}</span>
+            </div>
+
+            <div class="time">
+                <strong id="clock"></strong>
+                <p id="date"></p>
+            </div>
+        </div>
+
+        <!-- CONTENT (dynamic) -->
+        <div class="content">
+            {% block content %}
+            {% endblock %}
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+function updateTime() {
+    const now = new Date();
+    document.getElementById("clock").innerText = now.toLocaleTimeString();
+    document.getElementById("date").innerText = now.toDateString();
+}
+setInterval(updateTime, 1000);
+updateTime();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,172 @@
+{% extends 'admin_base.html' %}
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- =========================
+        HEADER
+    ========================== -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3 class="fw-bold">Ticket Management</h3>
+            <small class="text-muted">
+                Manage borrow tickets (cart → confirm → return flow)
+            </small>
+        </div>
+
+        <!-- Confirm all pending tickets -->
+        <a href="{% url 'circulation:ticket_confirm' %}"
+           class="btn btn-dark">
+            Confirm Pending Ticket
+        </a>
+    </div>
+
+    <!-- =========================
+        ERROR MESSAGE
+    ========================== -->
+    {% if error %}
+        <div class="alert alert-danger">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    <!-- =========================
+        MAIN TABLE
+    ========================== -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Book</th>
+                        <th>Member</th>
+                        <th>Status</th>
+                        <th>Borrow Date</th>
+                        <th>Due Date</th>
+                        <th>Return Date</th>
+                        <th>Fine</th>
+                        <th>Staff</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for t in tickets %}
+
+                    <tr>
+
+                        <!-- ID -->
+                        <td class="fw-bold">{{ t.id }}</td>
+
+                        <!-- BOOK -->
+                        <td>
+                            {% if t.edition and t.edition.book %}
+                                {{ t.edition.book.title }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- MEMBER -->
+                        <td>
+                            {{ t.member.username|default:"-" }}
+                        </td>
+
+                        <!-- STATUS -->
+                        <td>
+                            {% if t.status == 'PENDING' %}
+                                <span class="badge bg-warning text-dark">PENDING</span>
+
+                            {% elif t.status == 'BORROWED' %}
+                                <span class="badge bg-primary">BORROWED</span>
+
+                            {% elif t.status == 'OVERDUE' %}
+                                <span class="badge bg-danger">OVERDUE</span>
+
+                            {% elif t.status == 'RETURNED' %}
+                                <span class="badge bg-success">RETURNED</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- BORROW DATE -->
+                        <td>
+                            {% if t.borrow_date %}
+                                {{ t.borrow_date|date:"d-m-Y H:i" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <!-- DUE DATE -->
+                        <td>
+                            {% if t.due_date %}
+                                {{ t.due_date|date:"d-m-Y H:i" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <!-- RETURN DATE -->
+                        <td>
+                            {% if t.return_date %}
+                                {{ t.return_date|date:"d-m-Y H:i" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <!-- FINE -->
+                        <td>
+                            {{ t.fine_amount|default:"0" }}
+                        </td>
+
+                        <!-- STAFF -->
+                        <td>
+                            {{ t.staff.username|default:"-" }}
+                        </td>
+
+                        <!-- ACTION -->
+                        <td class="text-center">
+
+                            <!-- RETURN BUTTON -->
+                            {% if t.status == 'BORROWED' or t.status == 'OVERDUE' %}
+                                <a href="{% url 'circulation:return_ticket' t.id %}"
+                                   class="btn btn-sm btn-success">
+                                    Return
+                                </a>
+                            {% endif %}
+
+                            <!-- PENDING INFO -->
+                            {% if t.status == 'PENDING' %}
+                                <span class="text-muted small">
+                                    Pending ticket (cart)
+                                </span>
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="10" class="text-center text-muted py-4">
+                            No tickets found
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

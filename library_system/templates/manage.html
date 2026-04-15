@@ -1,0 +1,216 @@
+{% extends "admin_base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/manage.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="manage-container">
+
+    <!-- TAB -->
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('main')">
+            Author & Category
+        </button>
+        <button class="tab" onclick="showTab('rule')">
+            Rule Management
+        </button>
+    </div>
+
+    <!-- ================= TAB 1 ================= -->
+    <div id="mainTab" class="tab-content active">
+
+        <!-- ===== AUTHOR ===== -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Authors</h3>
+                <button class="btn-add" onclick="openAddAuthorModal()">+ Add Author</button>
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for author in authors %}
+                    <tr>
+                        <td>{{ author.id }}</td>
+                        <td>{{ author.name }}</td>
+                        <td>
+                            <button class="btn-edit" onclick="openEditAuthorModal('{{ author.id }}','{{ author.name }}')">Edit</button>
+                            <button class="btn-delete" onclick="openDeleteAuthorModal('{{ author.id }}')">Delete</button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3">No authors</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ===== CATEGORY ===== -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Categories</h3>
+                <button class="btn-add" onclick="openAddCategoryModal()">+ Add Category</button>
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for cate in categories %}
+                    <tr>
+                        <td>{{ cate.id }}</td>
+                        <td>{{ cate.name }}</td>
+                        <td>
+                            <button class="btn-edit" onclick="openEditCategoryModal('{{ cate.id }}','{{ cate.name }}')">Edit</button>
+                            <button class="btn-delete" onclick="openDeleteCategoryModal('{{ cate.id }}')">Delete</button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3">No categories</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- ================= TAB 2 ================= -->
+    <div id="ruleTab" class="tab-content">
+        <div class="card">
+            <h3>Rule Management</h3>
+            <p>Coming soon...</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- ===== ADD / EDIT MODAL ===== -->
+<div id="formModal" class="modal">
+    <div class="modal-content">
+
+        <h3 id="modalTitle">Add</h3>
+
+        <form method="POST" id="formSubmit">
+            {% csrf_token %}
+
+            <input type="hidden" name="id" id="item_id">
+
+            <input type="text" name="name" id="item_name" placeholder="Enter name" required>
+
+            <div class="modal-actions">
+                <button type="button" onclick="closeModal()">Cancel</button>
+                <button type="submit">Save</button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- ===== DELETE MODAL ===== -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+
+        <h3>Delete Confirmation</h3>
+        <p>Are you sure?</p>
+
+        <form method="POST" id="deleteForm">
+            {% csrf_token %}
+            <input type="hidden" name="id" id="delete_id">
+
+            <div class="modal-actions">
+                <button type="button" onclick="closeDeleteModal()">Cancel</button>
+                <button type="submit">Delete</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<!-- ===== JS ===== -->
+<script>
+function showTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+    if (tab === 'main') {
+        document.getElementById('mainTab').classList.add('active');
+        document.querySelectorAll('.tab')[0].classList.add('active');
+    } else {
+        document.getElementById('ruleTab').classList.add('active');
+        document.querySelectorAll('.tab')[1].classList.add('active');
+    }
+}
+
+// ===== MODAL =====
+function closeModal() {
+    document.getElementById("formModal").style.display = "none";
+}
+
+function closeDeleteModal() {
+    document.getElementById("deleteModal").style.display = "none";
+}
+
+// ===== AUTHOR =====
+function openAddAuthorModal() {
+    document.getElementById("modalTitle").innerText = "Add Author";
+    document.getElementById("item_name").value = "";
+    document.getElementById("formSubmit").action = "/books/author/create/";
+    document.getElementById("formModal").style.display = "flex";
+}
+
+function openEditAuthorModal(id, name) {
+    document.getElementById("modalTitle").innerText = "Edit Author";
+    document.getElementById("item_id").value = id;
+    document.getElementById("item_name").value = name;
+    document.getElementById("formSubmit").action = `/books/author/update/${id}/`;
+    document.getElementById("formModal").style.display = "flex";
+}
+
+// ===== CATEGORY =====
+function openAddCategoryModal() {
+    document.getElementById("modalTitle").innerText = "Add Category";
+    document.getElementById("item_name").value = "";
+    document.getElementById("formSubmit").action = "/books/category/create/";
+    document.getElementById("formModal").style.display = "flex";
+}
+
+function openEditCategoryModal(id, name) {
+    document.getElementById("modalTitle").innerText = "Edit Category";
+    document.getElementById("item_id").value = id;
+    document.getElementById("item_name").value = name;
+    document.getElementById("formSubmit").action = `/books/category/update/${id}/`;
+    document.getElementById("formModal").style.display = "flex";
+}
+
+// ===== DELETE =====
+function openDeleteAuthorModal(id) {
+    document.getElementById("delete_id").value = id;
+    document.getElementById("deleteForm").action = `/books/author/delete/${id}/`;
+    document.getElementById("deleteModal").style.display = "flex";
+}
+
+function openDeleteCategoryModal(id) {
+    document.getElementById("delete_id").value = id;
+    document.getElementById("deleteForm").action = `/books/category/delete/${id}/`;
+    document.getElementById("deleteModal").style.display = "flex";
+}
+</script>
+
+{% endblock %}
