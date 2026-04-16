@@ -1,5 +1,5 @@
 from django.contrib import messages
-
+from django.utils import timezone
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -24,11 +24,10 @@ from .services import (
 @login_required
 def ticket_management_view(request):
 
-    if is_librarian(request.user):
+    if request.user.is_staff or request.user.is_superuser:
         tickets = BorrowTransaction.objects.prefetch_related(
             'items__edition__book'
         ).order_by('-id')
-
     else:
         tickets = BorrowTransaction.objects.filter(
             member=request.user
@@ -39,7 +38,6 @@ def ticket_management_view(request):
     return render(request, 'ticket_management.html', {
         'tickets': tickets
     })
-
 
 @login_required
 def add_to_ticket_view(request, edition_id):
@@ -62,13 +60,13 @@ def add_to_ticket_view(request, edition_id):
     # 🎯 SUCCESS MESSAGE
     messages.success(
         request,
-        "📚 Đặt sách thành công! Vui lòng chờ admin xác nhận."
+        "Đã thêm sách vào phiếu mượn"
     )
 
     if is_librarian(request.user):
         return redirect('circulation:ticket_management')
     else:
-        return redirect('books:user_book_list')
+        return redirect('user_book_list')
     
 
 @login_required
@@ -98,16 +96,18 @@ def remove_from_ticket_view(request, edition_id):
 @login_required
 def confirm_ticket_view(request, ticket_id):
 
-    if not is_librarian(request.user):
-        return HttpResponseForbidden()
-
-    if request.method != "GET":
+    if request.method != "POST":
         return redirect('circulation:ticket_management')
 
     result = confirm_ticket(
         ticket_id=ticket_id,
-        staff_user=request.user
+        user=request.user
     )
+
+    if not result["success"]:
+        messages.error(request, result["message"])
+    else:
+        messages.success(request, "Ticket confirmed successfully")
 
     return redirect('circulation:ticket_management')
 
@@ -127,29 +127,30 @@ def return_ticket_view(request, pk):
         if ticket.member != request.user:
             return HttpResponseForbidden("Not allowed")
 
-        if ticket.status != "BORROWED":
+        if ticket.status not in ["BORROWED", "OVERDUE"]:
             return redirect('circulation:my_books')
 
         ticket.status = "RETURN_REQUESTED"
         ticket.save()
+
+        messages.success(request, "Return requested")
 
         return redirect('circulation:my_books')
 
     # =========================
     # 👨‍💼 ADMIN APPROVE RETURN
     # =========================
-    if ticket.status != "RETURN_REQUESTED":
-        return redirect('circulation:borrow_history')
-
     result = approve_return_ticket(
         ticket_id=ticket.id,
         staff_user=request.user
     )
 
-    return redirect('circulation:borrow_history')
+    if not result["success"]:
+        messages.error(request, result["message"])
+    else:
+        messages.success(request, "Return approved successfully")
 
-def is_librarian(user):
-    return user.is_staff or user.is_superuser
+    return redirect('circulation:borrow_history')
 
 @login_required
 def borrow_history_view(request):
@@ -189,3 +190,35 @@ def rules_view(request):
         'fine_rule': fine_rule
     })
 
+def update_overdue_tickets():
+    now = timezone.now()
+
+    BorrowTransaction.objects.filter(
+        status='BORROWED',
+        due_date__lt=now
+    ).update(status='OVERDUE')
+
+from .services import approve_ticket
+
+@login_required
+def approve_ticket_view(request, ticket_id):
+
+    # ✅ check quyền
+    if not is_librarian(request.user):
+        return HttpResponseForbidden()
+
+    # 🔥 FIX: dùng POST
+    if request.method != "POST":
+        return redirect('circulation:ticket_management')
+
+    result = approve_ticket(
+        ticket_id=ticket_id,
+        staff_user=request.user
+    )
+
+    if not result["success"]:
+        messages.error(request, result["message"])
+    else:
+        messages.success(request, "Borrow approved successfully")
+
+    return redirect('circulation:ticket_management')

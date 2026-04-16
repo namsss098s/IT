@@ -80,6 +80,9 @@
                             {% if t.status == 'PENDING' %}
                             <span class="badge bg-warning text-dark">PENDING</span>
 
+                            {% elif t.status == 'REQUESTED' %}
+                            <span class="badge bg-secondary">REQUESTED</span>
+
                             {% elif t.status == 'BORROWED' %}
                             <span class="badge bg-primary">BORROWED</span>
 
@@ -136,11 +139,22 @@
 
                             {% if t.status == 'PENDING' %}
 
-                            {% for t in tickets %}
-                                <a href="{% url 'circulation:ticket_confirm' t.id %}">
+                            <form method="POST" action="{% url 'circulation:ticket_confirm' t.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-primary">
                                     Confirm
-                                </a>
-                            {% endfor %}
+                                </button>
+                            </form>
+
+                            {% elif t.status == 'REQUESTED' %}
+
+                            <form method="POST" action="{% url 'circulation:ticket_approve' t.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    Approve Borrow
+                                </button>
+                            </form>
+
                             {% elif t.status == 'RETURN_REQUESTED' %}
 
                             <form method="POST" action="{% url 'circulation:return_ticket' t.id %}">
@@ -165,7 +179,6 @@
                             {% endif %}
 
                         </td>
-
                     </tr>
 
                     {% empty %}

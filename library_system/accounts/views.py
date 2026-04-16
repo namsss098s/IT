@@ -45,6 +45,7 @@ def redirect_dashboard(request):
 
     return redirect('accounts:user_dashboard')
 
+from datetime import timedelta
 
 @login_required
 def admin_dashboard(request):
@@ -55,6 +56,7 @@ def admin_dashboard(request):
     if not (request.user.is_superuser or profile.is_manager):
         return redirect('accounts:user_dashboard')
 
+    # ===== BASIC STATS =====
     total_users = User.objects.filter(
         is_staff=False,
         is_superuser=False
@@ -75,6 +77,26 @@ def admin_dashboard(request):
         due_date__lt=timezone.now()
     )
 
+    # ===== 📈 CHART: BORROW TREND =====
+    labels = []
+    data = []
+
+    for i in range(6, -1, -1):
+        day = timezone.now().date() - timedelta(days=i)
+
+        count = BorrowRecord.objects.filter(
+            borrow_date__date=day
+        ).count()
+
+        labels.append(day.strftime("%d/%m"))
+        data.append(count)
+
+    # ===== 🥧 CHART: STATUS =====
+    pending = BorrowRecord.objects.filter(status='pending').count()
+    borrowed = total_borrowed
+    returned = total_returned
+    overdue_count = overdue
+
     return render(request, 'admin_dashboard.html', {
         'total_users': total_users,
         'total_books': total_books,
@@ -82,10 +104,18 @@ def admin_dashboard(request):
         'total_returned': total_returned,
         'overdue': overdue,
         'overdue_records': overdue_records,
+
+        'chart_labels': labels,
+        'chart_data': data,
+
+        'pending': pending,
+        'borrowed': borrowed,
+        'returned': returned,
+        'overdue_count': overdue_count,
+
         'is_manager': profile.role == 'librarian',
         'is_superuser': request.user.is_superuser,
     })
-
 
 
 def user_dashboard(request):

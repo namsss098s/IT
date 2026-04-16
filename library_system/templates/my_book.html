@@ -26,7 +26,6 @@
                 <img src="{{ item.edition.book.image.url }}" alt="{{ item.edition.book.title }}">
                 {% endif %}
             </div>
-
             <div class="book-info">
 
                 <h3>{{ item.edition.book.title }}</h3>
@@ -36,24 +35,42 @@
                 </p>
 
                 <p><b>Category:</b> {{ item.edition.book.category.name }}</p>
-
                 <p><b>Edition:</b> {{ item.edition.edition_number }}</p>
 
-                <p><b>Borrow Date:</b> {{ borrow.borrow_date }}</p>
-                <p><b>Due Date:</b> {{ borrow.due_date }}</p>
+                <p><b>Status:</b> 
+                    <span class="badge bg-secondary">
+                        {{ borrow.status }}
+                    </span>
+                </p>
+
+                <p><b>Borrow Date:</b> {{ borrow.borrow_date|date:"d-m-Y H:i" }}</p>
+                <p><b>Due Date:</b> {{ borrow.due_date|date:"d-m-Y H:i" }}</p>
 
                 <a href="{% url 'book_detail' item.edition.book.id %}" class="btn-detail">
                     View Book
                 </a>
 
-                <form method="POST" action="{% url 'circulation:return_ticket' borrow.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-return">
-                        Return Book
-                    </button>
-                </form>
+                {% if borrow.status == 'BORROWED' or borrow.status == 'OVERDUE' %}
+
+                    <form method="POST" action="{% url 'circulation:return_ticket' borrow.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-return">
+                            Return Book
+                        </button>
+                    </form>
+
+                {% elif borrow.status == 'RETURN_REQUESTED' %}
+
+                    <p class="text-warning">Waiting for admin approval</p>
+
+                {% elif borrow.status == 'PENDING' or borrow.status == 'REQUESTED' %}
+
+                    <p class="text-muted">Waiting for approval</p>
+
+                {% endif %}
 
             </div>
+            
 
         </div>
 

@@ -6,6 +6,8 @@ from decimal import Decimal
 from .models import BorrowTransaction, BorrowTransactionItem, BorrowRule, FineRule
 from books.models import Edition
 
+from django.db import transaction
+from django.shortcuts import get_object_or_404
 
 def get_or_create_pending_ticket(user):
     ticket, created = BorrowTransaction.objects.get_or_create(
@@ -60,26 +62,54 @@ def remove_book_from_ticket(*, user, edition_id):
 
     return {"success": True, "ticket": ticket}
 
-def confirm_ticket(*, user):
-    ticket = BorrowTransaction.objects.filter(
-        member=user,
-        status='PENDING'
-    ).first()
+def confirm_ticket(*, ticket_id, user):
 
-    if not ticket:
-        return {"success": False, "message": "No pending ticket"}
+    # 🔥 FIX: phân quyền
+    if user.is_staff or user.is_superuser:
+        ticket = get_object_or_404(
+            BorrowTransaction,
+            id=ticket_id
+        )
+    else:
+        ticket = get_object_or_404(
+            BorrowTransaction,
+            id=ticket_id,
+            member=user
+        )
+
+    if ticket.status != 'PENDING':
+        return {"success": False, "message": "Invalid status"}
 
     items = ticket.items.all()
     if not items.exists():
         return {"success": False, "message": "Ticket is empty"}
 
-    # chỉ validate, KHÔNG trừ stock
+    # ❗ check overdue (chỉ check với member thật)
+    has_overdue = BorrowTransaction.objects.filter(
+        member=ticket.member,
+        status='OVERDUE'
+    ).exists()
+
+    if has_overdue:
+        return {"success": False, "message": "User has overdue books"}
+
+    # ❗ check max books
+    rule = BorrowRule.objects.first()
+    total_books = sum(item.quantity for item in items)
+
+    if rule and total_books > rule.max_books:
+        return {"success": False, "message": "Exceed max books limit"}
+
+    # ❗ check stock
     for item in items:
         if item.edition.available_quantity < item.quantity:
-            return {"success": False, "message": f"Not enough stock for {item.edition.book.title}"}
+            return {
+                "success": False,
+                "message": f"Not enough stock for {item.edition.book.title}"
+            }
 
-    # 🔥 CHỈ mark pending (request gửi admin)
-    ticket.status = 'PENDING'
+    # ✅ chuyển sang REQUESTED
+    ticket.status = 'REQUESTED'
     ticket.save()
 
     return {"success": True, "ticket": ticket}
@@ -95,10 +125,13 @@ def request_return_ticket(*, ticket_id, user):
 
     return {"success": True, "ticket": ticket}
 
+@transaction.atomic
 def approve_return_ticket(*, ticket_id, staff_user):
-    ticket = BorrowTransaction.objects.prefetch_related(
-        'items__edition'
-    ).get(id=ticket_id)
+
+    ticket = get_object_or_404(
+        BorrowTransaction.objects.prefetch_related('items__edition'),
+        id=ticket_id
+    )
 
     if ticket.status != 'RETURN_REQUESTED':
         return {"success": False, "message": "Invalid ticket status"}
@@ -106,54 +139,57 @@ def approve_return_ticket(*, ticket_id, staff_user):
     now = timezone.now()
     fine_rule = FineRule.objects.first()
 
-    # =========================
-    # SET RETURNED STATUS (LUÔN LUÔN)
-    # =========================
+    # ✅ update ticket
     ticket.status = 'RETURNED'
     ticket.return_date = now
     ticket.staff = staff_user
 
-    # =========================
-    # CALCULATE FINE (NẾU TRỄ)
-    # =========================
+    # ✅ tính tiền phạt
     if ticket.due_date and now > ticket.due_date:
+        days = max(0, (now.date() - ticket.due_date.date()).days)
+
         if fine_rule:
-            days = (now.date() - ticket.due_date.date()).days
             ticket.fine_amount = Decimal(days) * fine_rule.fine_per_day
     else:
         ticket.fine_amount = 0
 
     ticket.save()
 
-    # =========================
-    # RESTORE STOCK
-    # =========================
+    # ✅ cộng kho
     for item in ticket.items.all():
         edition = item.edition
         edition.available_quantity += item.quantity
         edition.save()
 
-    return {"success": True, "ticket": ticket}
+    return {"success": True}
 
+
+@transaction.atomic
 def approve_ticket(*, ticket_id, staff_user):
-    ticket = BorrowTransaction.objects.prefetch_related('items__edition').get(id=ticket_id)
+    ticket = BorrowTransaction.objects.prefetch_related(
+        'items__edition'
+    ).get(id=ticket_id)
 
-    if ticket.status != 'PENDING':
+    if ticket.status != 'REQUESTED':
         return {"success": False, "message": "Invalid status"}
 
     rule = BorrowRule.objects.first()
     borrow_days = rule.max_days if rule else 7
 
-    # set BORROWED
+    # ✅ set BORROWED
     ticket.status = 'BORROWED'
     ticket.borrow_date = timezone.now()
     ticket.due_date = timezone.now() + timedelta(days=borrow_days)
     ticket.staff = staff_user
     ticket.save()
 
-    # 🔥 TRỪ STOCK Ở ĐÂY (đúng chuẩn)
+    # ✅ trừ kho
     for item in ticket.items.all():
         edition = item.edition
+
+        if edition.available_quantity < item.quantity:
+            raise Exception("Stock changed, not enough books")
+
         edition.available_quantity -= item.quantity
         edition.save()
 

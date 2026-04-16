@@ -27,9 +27,12 @@ class BorrowTransaction(models.Model):
 
     STATUS_CHOICES = (
         ('PENDING', 'Pending'),
+        ('REQUESTED', 'Requested'), 
         ('BORROWED', 'Borrowed'),
+        ('RETURN_REQUESTED', 'Return Requested'), 
         ('RETURNED', 'Returned'),
         ('OVERDUE', 'Overdue'),
+        ('REJECTED', 'Rejected'),
     )
 
     member = models.ForeignKey(
@@ -51,7 +54,7 @@ class BorrowTransaction(models.Model):
     return_date = models.DateTimeField(null=True, blank=True)
 
     status = models.CharField(
-        max_length=10,
+        max_length=20,
         choices=STATUS_CHOICES,
         default='PENDING'
     )

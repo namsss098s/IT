@@ -327,3 +327,71 @@ th, td {
     background: #ccc;
     border-radius: 10px;
 }
+/* CARD */
+
+.stat-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-radius: 16px;
+    color: white;
+    transition: 0.3s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.stat-card h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.stat-card i {
+    font-size: 40px;
+}
+
+/* COLORS */
+
+.stat-card.primary {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+}
+
+.stat-card.success {
+    background: linear-gradient(135deg, #1cc88a, #13855c);
+}
+
+.stat-card.warning {
+    background: linear-gradient(135deg, #f6c23e, #dda20a);
+    color: black;
+}
+
+.stat-card.info {
+    background: linear-gradient(135deg, #36b9cc, #258391);
+}
+
+.stat-card.danger {
+    background: linear-gradient(135deg, #e74a3b, #be2617);
+}
+
+/* HOVER */
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* CHART */
+
+.dashboard-charts {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.chart-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
