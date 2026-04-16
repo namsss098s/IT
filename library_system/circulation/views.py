@@ -150,19 +150,21 @@ def return_ticket_view(request, pk):
     else:
         messages.success(request, "Return approved successfully")
 
-    return redirect('circulation:borrow_history')
+    return redirect('circulation:ticket_management')
 
 @login_required
 def borrow_history_view(request):
 
-    tickets = BorrowTransaction.objects.select_related(
+    borrows = BorrowTransaction.objects.filter(
+        member=request.user
+    ).select_related(
         'member', 'staff'
     ).prefetch_related(
         'items__edition__book'
     ).order_by('-id')
 
     return render(request, 'borrow_history.html', {
-        'tickets': tickets
+        'borrows': borrows
     })
 @login_required
 def my_books_view(request):
