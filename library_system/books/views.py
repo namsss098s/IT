@@ -2,6 +2,7 @@ import json
 
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Book, Category, Author, Edition
 from .forms import BookForm
 from django.core.paginator import Paginator
@@ -15,7 +16,17 @@ from .selectors import (
 from .services import update_total_quantity
 
 
+def is_staff_user(user):
+    if not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    return getattr(getattr(user, 'staffprofile', None), 'role', None) in ['admin', 'librarian']
+
+
 # ===== LIST =====
+@login_required
+@user_passes_test(is_staff_user)
 def book_list(request):
     query = request.GET.get('q')
     category_id = request.GET.get('category')
@@ -56,13 +67,13 @@ def book_detail(request, pk):
 
 
 # ===== CREATE =====
+@login_required
+@user_passes_test(is_staff_user)
 def book_create(request):
     if request.method == "POST":
-        form = BookForm(request.POST)
+        form = BookForm(request.POST, request.FILES)
 
         if form.is_valid():
-            print("VALID OK")
-
             book = form.save(commit=False)
             book.save()
             form.save_m2m()
@@ -75,17 +86,16 @@ def book_create(request):
 
             return redirect('book_list')
 
-        else:
-            print("FORM ERROR:", form.errors)  # 🔥 THÊM DÒNG NÀY
-
     return redirect('book_list')
 
 
+@login_required
+@user_passes_test(is_staff_user)
 def book_update(request, pk):
     book = get_object_or_404(Book, pk=pk)
 
     if request.method == "POST":
-        form = BookForm(request.POST, instance=book)
+        form = BookForm(request.POST, request.FILES, instance=book)
 
         if form.is_valid():
             book = form.save(commit=False)
@@ -98,17 +108,19 @@ def book_update(request, pk):
 
 
 # ===== DELETE =====
+@login_required
+@user_passes_test(is_staff_user)
 def book_delete(request):
     if request.method == "POST":
         book_id = request.POST.get("book_id")
-
-        print("DELETE ID:", book_id)  # debug
 
         book = get_object_or_404(Book, id=book_id)
         book.delete()
 
     return redirect('book_list')
 # ===== PAGE =====
+@login_required
+@user_passes_test(is_staff_user)
 def manage_page(request):
     authors = Author.objects.all()
     categories = Category.objects.all()
@@ -120,6 +132,8 @@ def manage_page(request):
 
 
 # ===== AUTHOR =====
+@login_required
+@user_passes_test(is_staff_user)
 def author_create(request):
     if request.method == "POST":
         name = request.POST.get("name")
@@ -130,6 +144,8 @@ def author_create(request):
     return redirect('manage_page')
 
 
+@login_required
+@user_passes_test(is_staff_user)
 def author_update(request, pk):
     author = get_object_or_404(Author, pk=pk)
 
@@ -143,6 +159,8 @@ def author_update(request, pk):
     return redirect('manage_page')
 
 
+@login_required
+@user_passes_test(is_staff_user)
 def author_delete(request, pk):
     if request.method == "POST":
         author = get_object_or_404(Author, pk=pk)
@@ -152,6 +170,8 @@ def author_delete(request, pk):
 
 
 # ===== CATEGORY =====
+@login_required
+@user_passes_test(is_staff_user)
 def category_create(request):
     if request.method == "POST":
         name = request.POST.get("name")
@@ -162,6 +182,8 @@ def category_create(request):
     return redirect('manage_page')
 
 
+@login_required
+@user_passes_test(is_staff_user)
 def category_update(request, pk):
     cate = get_object_or_404(Category, pk=pk)
 
@@ -175,6 +197,8 @@ def category_update(request, pk):
     return redirect('manage_page')
 
 
+@login_required
+@user_passes_test(is_staff_user)
 def category_delete(request, pk):
     if request.method == "POST":
         cate = get_object_or_404(Category, pk=pk)
@@ -184,9 +208,12 @@ def category_delete(request, pk):
 
 from books.models import Edition
 
+@login_required
 def user_book_list(request):
-    editions = Edition.objects.select_related('book', 'book__category')
+    editions = Edition.objects.select_related('book', 'book__category') \
+        .prefetch_related('book__authors')
 
     return render(request, 'book_list.html', {
         'editions': editions
     })
+

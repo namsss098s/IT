@@ -20,30 +20,32 @@
             <img src="{% static 'images/logo.png' %}" alt="logo">
         </div>
 
+        {% with url_name=request.resolver_match.url_name|default:'' app_name=request.resolver_match.app_name|default:'' %}
         <ul class="menu">
 
-            <li class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+            <li class="{% if app_name == 'accounts' and url_name == 'admin_dashboard' %}active{% endif %}">
                 <a href="{% url 'accounts:admin_dashboard' %}">Dashboard</a>
             </li>
 
-            <li class="{% if request.resolver_match.url_name == 'book_list' %}active{% endif %}">
+            <li class="{% if url_name == 'book_list' %}active{% endif %}">
                 <a href="{% url 'book_list' %}">Books</a>
             </li>
 
-            <li class="{% if request.resolver_match.url_name == 'member_list' %}active{% endif %}">
+            <li class="{% if app_name == 'accounts' and url_name == 'member_list' %}active{% endif %}">
                 <a href="{% url 'accounts:member_list' %}">Members</a>
             </li>
-            <li class="{% if request.resolver_match.url_name == 'circulation:ticket_management' %}active{% endif %}">
+            <li class="{% if app_name == 'circulation' and url_name == 'ticket_management' %}active{% endif %}">
                 <a href="{% url 'circulation:ticket_management' %}">Circulation</a>
             </li>
-            <li class="{% if request.resolver_match.url_name == 'reports' %}active{% endif %}">
-                <a href="{% url 'accounts:admin_dashboard' %}">Reports</a>
+            <li class="{% if app_name == 'reports' %}active{% endif %}">
+                <a href="{% url 'reports:report_dashboard' %}">Reports</a>
             </li>
-            <li class="{% if request.resolver_match.url_name == 'manage_page' %}active{% endif %}">
+            <li class="{% if url_name == 'manage_page' %}active{% endif %}">
                 <a href="{% url 'manage_page' %}">Extra</a>
             </li>
 
         </ul>
+        {% endwith %}
 
         <a href="{% url 'accounts:logout' %}" class="menu bottom logout-btn"
            onclick="return confirm('Are you sure you want to logout?')">
@@ -59,7 +61,13 @@
         <div class="header">
             <div>
                 <h4>{{ request.user.username }}</h4>
-                <span>{{ request.user.role|title }}</span>
+                <span>
+                    {% if request.user.is_superuser %}
+                        Superuser
+                    {% else %}
+                        {{ request.user.staffprofile.role|title|default:"Staff" }}
+                    {% endif %}
+                </span>
             </div>
 
             <div class="time">

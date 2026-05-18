@@ -20,15 +20,24 @@
 
         <div class="actions">
             <a href="{% url 'accounts:redirect_dashboard' %}" class="btn btn-back">Back</a>
-            <button class="btn btn-edit"
-                    onclick="openUpdateModal(this)"
-                    data-id="{{ book.id }}">
-                Edit
-            </button>
+            {% if request.user.is_superuser or request.user.staffprofile.role == 'admin' or request.user.staffprofile.role == 'librarian' %}
+                <a class="btn btn-edit" href="{% url 'book_list' %}">
+                    Edit
+                </a>
+            {% endif %}
         </div>
     </div>
 
     <!-- CONTENT -->
+    <div class="detail-layout">
+        <div class="cover-panel">
+            {% if book.cover %}
+                <img src="{{ book.cover.url }}" alt="{{ book.title }}">
+            {% else %}
+                <img src="{% static 'images/book-icon.png' %}" alt="{{ book.title }}">
+            {% endif %}
+        </div>
+
     <div class="grid">
 
         <div class="card">
@@ -66,6 +75,8 @@
                 {{ book.description }}
             </div>
         </div>
+
+    </div>
 
     </div>
 

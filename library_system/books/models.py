@@ -16,6 +16,7 @@ class Author(models.Model):
 
 
 class Book(models.Model):
+
     title = models.CharField(max_length=200, db_index=True)
 
     category = models.ForeignKey(
@@ -26,11 +27,22 @@ class Book(models.Model):
     )
 
     description = models.TextField(blank=True)
-    publisher = models.CharField(max_length=150, blank=True)
+
+    publisher = models.CharField(
+        max_length=150,
+        blank=True
+    )
 
     price = models.DecimalField(
         max_digits=20,
         decimal_places=2,
+        null=True,
+        blank=True
+    )
+
+    # 🔥 NEW
+    cover = models.ImageField(
+        upload_to='books/covers/',
         null=True,
         blank=True
     )

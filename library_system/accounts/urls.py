@@ -22,5 +22,9 @@ urlpatterns = [
     path('members/update/<int:pk>/', views.member_update, name='member_update'),
     path('members/delete/<int:pk>/', views.member_delete, name='member_delete'),
     path('members/<int:pk>/json/', views.member_json, name='member_json'),
+
     path('profile/', views.profile_view, name='profile'),
+
+    path('profile/update/<int:user_id>/',views.update_profile,name='update_profile'),
+    path('profile/change-password/<int:user_id>/',views.change_password,name='change_password'),
 ]

@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/history.css' %}">
+<link rel="stylesheet" href="{% static 'css/borrow_history.css' %}?v=1">
 {% endblock %}
 
 {% block content %}
@@ -10,55 +10,109 @@
 <div class="history-container">
 
     <div class="history-header">
-        <h2>Borrow History</h2>
+        <div>
+            <h2>Borrow History</h2>
+            <p>Track every borrow request, borrowed book, return date, and fine.</p>
+        </div>
     </div>
 
-    <div class="history-table">
+    <div class="history-list">
 
-        <!-- HEADER -->
-        <div class="history-row header">
-            <span>ID</span>
-            <span>Borrow Date</span>
-            <span>Due Date</span>
-            <span>Status</span>
-            <span>Fine</span>
-        </div>
-
-        <!-- DATA -->
         {% for borrow in borrows %}
+        <article class="history-card">
 
-        <div class="history-row">
+            <div class="history-card-top">
+                <div>
+                    <span class="ticket-label">Ticket #{{ borrow.id }}</span>
+                    <h3>
+                        {% for item in borrow.items.all %}
+                            {{ item.edition.book.title }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            Empty ticket
+                        {% endfor %}
+                    </h3>
+                </div>
 
-            <span>#{{ borrow.id }}</span>
-
-            <span>
-                {{ borrow.borrow_date|date:"d M Y H:i" }}
-            </span>
-
-            <span>
-                {{ borrow.due_date|date:"d M Y H:i" }}
-            </span>
-
-            <span>
                 {% if borrow.status == "BORROWED" %}
                     <span class="badge borrowed">Borrowed</span>
                 {% elif borrow.status == "RETURNED" %}
                     <span class="badge returned">Returned</span>
                 {% elif borrow.status == "OVERDUE" %}
                     <span class="badge overdue">Overdue</span>
+                {% elif borrow.status == "RETURN_REQUESTED" %}
+                    <span class="badge return-requested">Return requested</span>
+                {% elif borrow.status == "REQUESTED" %}
+                    <span class="badge requested">Requested</span>
+                {% elif borrow.status == "REJECTED" %}
+                    <span class="badge rejected">Rejected</span>
                 {% else %}
                     <span class="badge pending">Pending</span>
                 {% endif %}
-            </span>
+            </div>
 
-            <span>
-                {{ borrow.fine_amount }} VND
-            </span>
+            <div class="history-books">
+                {% for item in borrow.items.all %}
+                <div class="history-book">
+                    <div class="history-cover">
+                        {% if item.edition.book.cover %}
+                            <img src="{{ item.edition.book.cover.url }}" alt="{{ item.edition.book.title }}">
+                        {% else %}
+                            <img src="{% static 'images/book-icon.png' %}" alt="{{ item.edition.book.title }}">
+                        {% endif %}
+                    </div>
 
-        </div>
+                    <div class="history-book-info">
+                        <a href="{% url 'book_detail' item.edition.book.id %}">
+                            {{ item.edition.book.title }}
+                        </a>
+                        <p>
+                            {% for author in item.edition.book.authors.all %}
+                                {{ author.name }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                Unknown author
+                            {% endfor %}
+                        </p>
+                        <div class="book-tags">
+                            <span>{{ item.edition.book.category.name|default:"No category" }}</span>
+                            <span>Edition {{ item.edition.edition_number }}</span>
+                            <span>x{{ item.quantity }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="empty-inline">No books in this ticket.</p>
+                {% endfor %}
+            </div>
+
+            <div class="history-meta">
+                <div>
+                    <span>Borrow date</span>
+                    <strong>{{ borrow.borrow_date|date:"d-m-Y H:i" }}</strong>
+                </div>
+                <div>
+                    <span>Due date</span>
+                    <strong>{{ borrow.due_date|date:"d-m-Y H:i"|default:"-" }}</strong>
+                </div>
+                <div>
+                    <span>Return date</span>
+                    <strong>{{ borrow.return_date|date:"d-m-Y H:i"|default:"-" }}</strong>
+                </div>
+                <div>
+                    <span>Processed by</span>
+                    <strong>{{ borrow.staff.username|default:"-" }}</strong>
+                </div>
+                <div>
+                    <span>Fine</span>
+                    <strong class="{% if borrow.fine_amount %}fine-amount{% endif %}">
+                        {{ borrow.fine_amount|default:"0" }} VND
+                    </strong>
+                </div>
+            </div>
+
+        </article>
 
         {% empty %}
-        <p class="empty">No borrow history found.</p>
+        <div class="empty">No borrow history found.</div>
         {% endfor %}
 
     </div>

@@ -1,0 +1,39 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Overdue Report{% endblock %}
+
+{% block content %}
+<div class="top-bar">
+    <h1>Overdue Report</h1>
+    <a class="btn-add" href="{% url 'reports:report_dashboard' %}">Back</a>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Member</th>
+                <th>Due Date</th>
+                <th>Fine</th>
+                <th>Staff</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+            <tr>
+                <td>#{{ transaction.id }}</td>
+                <td>{{ transaction.member.username }}</td>
+                <td>{{ transaction.due_date|date:"d-m-Y H:i"|default:"-" }}</td>
+                <td>{{ transaction.fine_amount }} VND</td>
+                <td>{{ transaction.staff.username|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No overdue transactions found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

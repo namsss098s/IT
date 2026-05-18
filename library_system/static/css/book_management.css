@@ -150,6 +150,38 @@ td {
     border-bottom: 1px solid #eee;
 }
 
+.book-cover-thumb {
+    width: 48px;
+    height: 68px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #e5e5e5;
+    display: block;
+}
+
+.book-cover-empty {
+    width: 48px;
+    height: 68px;
+    border: 1px dashed #cfcfcf;
+    border-radius: 6px;
+    color: #777;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.file-label {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+}
+
 /* ===== ACTION ===== */
 .btn-edit {
     color: blue;

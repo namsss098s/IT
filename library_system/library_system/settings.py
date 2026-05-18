@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'accounts',
+    'accounts.apps.AccountsConfig',
     'books',
     'circulation',
     'reports',
@@ -154,3 +154,7 @@ EMAIL_HOST_USER = 'nsvshekiro@gmail.com'
 EMAIL_HOST_PASSWORD = 'sfswzuboxywngnkf'
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = BASE_DIR / 'media'

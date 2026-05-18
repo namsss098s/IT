@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import BorrowRule, FineRule, BorrowTransaction
+from .models import BorrowRule, FineRule, BorrowTransaction, BorrowTransactionItem
 
 
 
@@ -18,7 +18,6 @@ class BorrowTransactionAdmin(admin.ModelAdmin):
 
     list_display = (
         'id',
-        'edition',
         'member',
         'status',
         'borrow_date',
@@ -38,14 +37,22 @@ class BorrowTransactionAdmin(admin.ModelAdmin):
     search_fields = (
         'member__username',
         'member__email',
-        'edition__book__title',
+        'items__edition__book__title',
         'staff__username',
     )
 
     readonly_fields = (
         'borrow_date',
         'fine_amount',
-        'reject_reason',
     )
 
     ordering = ('-id',)
+
+
+class BorrowTransactionItemInline(admin.TabularInline):
+    model = BorrowTransactionItem
+    extra = 0
+
+
+BorrowTransactionAdmin.inlines = [BorrowTransactionItemInline]
+admin.site.register(BorrowTransaction, BorrowTransactionAdmin)

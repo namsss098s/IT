@@ -1,0 +1,43 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Borrow Report{% endblock %}
+
+{% block content %}
+<div class="top-bar">
+    <h1>Borrow Report</h1>
+    <a class="btn-add" href="{% url 'reports:report_dashboard' %}">Back</a>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Member</th>
+                <th>Status</th>
+                <th>Borrow Date</th>
+                <th>Due Date</th>
+                <th>Return Date</th>
+                <th>Fine</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+            <tr>
+                <td>#{{ transaction.id }}</td>
+                <td>{{ transaction.member.username }}</td>
+                <td>{{ transaction.status }}</td>
+                <td>{{ transaction.borrow_date|date:"d-m-Y H:i" }}</td>
+                <td>{{ transaction.due_date|date:"d-m-Y H:i"|default:"-" }}</td>
+                <td>{{ transaction.return_date|date:"d-m-Y H:i"|default:"-" }}</td>
+                <td>{{ transaction.fine_amount }} VND</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7">No transactions found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

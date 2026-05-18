@@ -45,3 +45,239 @@
     border-radius: 6px;
     text-decoration: none;
 }
+
+.edit-button {
+    padding: 8px 14px;
+    background: black;
+    color: white;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+.change-password-button {
+    padding: 8px 14px;
+    background: #007BFF;
+    color: white;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+/* =========================
+   EDIT MODAL
+========================= */
+
+#EditModal {
+    display: none;
+
+    position: fixed;
+
+    left: 0;
+    top: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: 9999;
+
+    background: rgba(0,0,0,0.5);
+
+    justify-content: center;
+    align-items: center;
+}
+
+#EditModal .modal-content {
+
+    width: 450px;
+
+    background: white;
+
+    padding: 30px;
+
+    border-radius: 12px;
+
+    position: relative;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+
+    animation: popup 0.25s ease;
+}
+
+#EditModal .modal-content span {
+
+    position: absolute;
+
+    right: 18px;
+    top: 10px;
+
+    font-size: 28px;
+
+    cursor: pointer;
+}
+
+#EditModal form {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 18px;
+}
+
+#EditModal label {
+
+    font-weight: 600;
+
+    margin-bottom: 5px;
+
+    display: block;
+}
+
+#EditModal input {
+
+    width: 100%;
+
+    padding: 12px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 8px;
+
+    outline: none;
+}
+
+#EditModal button {
+
+    padding: 12px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #4a90e2;
+
+    color: white;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+/* =========================
+   CHANGE PASSWORD MODAL
+========================= */
+
+#changePasswordModal {
+
+    display: none;
+
+    position: fixed;
+
+    left: 0;
+    top: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: 9999;
+
+    background: rgba(0,0,0,0.5);
+
+    justify-content: center;
+    align-items: center;
+}
+
+#changePasswordModal .modal-content {
+
+    width: 450px;
+
+    background: white;
+
+    padding: 30px;
+
+    border-radius: 12px;
+
+    position: relative;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+
+    animation: popup 0.25s ease;
+}
+
+#changePasswordModal .modal-content span {
+
+    position: absolute;
+
+    right: 18px;
+    top: 10px;
+
+    font-size: 28px;
+
+    cursor: pointer;
+}
+
+#changePasswordModal form {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 18px;
+}
+
+#changePasswordModal label {
+
+    font-weight: 600;
+
+    margin-bottom: 5px;
+
+    display: block;
+}
+
+#changePasswordModal input {
+
+    width: 100%;
+
+    padding: 12px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 8px;
+
+    outline: none;
+}
+
+#changePasswordModal button {
+
+    padding: 12px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #4a90e2;
+
+    color: white;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+/* =========================
+   ANIMATION
+========================= */
+
+@keyframes popup {
+
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

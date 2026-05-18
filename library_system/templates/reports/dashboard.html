@@ -1,0 +1,31 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+<div class="stats">
+    <div class="card">
+        <h1>{{ total_books }}</h1>
+        <p>Total Books</p>
+    </div>
+    <div class="card">
+        <h1>{{ total_members }}</h1>
+        <p>Total Members</p>
+    </div>
+    <div class="card">
+        <h1>{{ total_borrowed }}</h1>
+        <p>Borrowed Tickets</p>
+    </div>
+    <div class="card">
+        <h1>{{ total_overdue }}</h1>
+        <p>Overdue Tickets</p>
+    </div>
+</div>
+
+<div class="table-container" style="margin-top: 24px;">
+    <h2>Reports</h2>
+    <p style="margin: 12px 0 18px;">Choose a report to inspect circulation data.</p>
+    <a class="btn-add" href="{% url 'reports:borrow_report' %}">Borrow Report</a>
+    <a class="btn-add" href="{% url 'reports:overdue_report' %}">Overdue Report</a>
+</div>
+{% endblock %}

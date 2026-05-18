@@ -1,7 +1,7 @@
 .mybook-container {
     background: #F2F2F2;
     min-height: 100vh;
-    padding: 100px 80px;
+    padding: 28px 56px;
     font-family: 'Montserrat', sans-serif;
 }
 
@@ -10,7 +10,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 40px;
+    margin-bottom: 28px;
 }
 
 .mybook-header h2 {
@@ -27,57 +27,190 @@
 }
 
 /* GRID */
-.book-grid {
+.mybook-container .book-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+    gap: 20px;
 }
 
 /* CARD */
-.book-card {
+.mybook-container .book-card {
     background: white;
-    border-radius: 12px;
-    padding: 20px;
+    border-radius: 10px;
+    padding: 18px;
     display: flex;
-    gap: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    flex-direction: row;
+    align-items: stretch;
+    gap: 18px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    border: 1px solid #e9e9e9;
+    min-height: 260px;
 }
 
 /* IMAGE */
-.book-image img {
-    width: 160px;
-    height: 240px;
+.mybook-container .book-image {
+    width: 150px;
+    flex: 0 0 150px;
+}
+
+.mybook-container .book-image img {
+    width: 100%;
+    height: 220px;
     object-fit: cover;
     border-radius: 8px;
+    border: 1px solid #e4e4e4;
+    display: block;
 }
 
 /* INFO */
-.book-info h3 {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 10px;
+.mybook-container .book-info {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
 }
 
-.book-info .desc {
-    color: #666;
+.mybook-container .book-title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 8px;
+}
+
+.mybook-container .book-info h3 {
+    font-size: 20px;
+    line-height: 1.3;
+    font-weight: 700;
+    margin: 0;
+    color: #111;
+}
+
+.mybook-container .book-info .desc {
+    color: #5f6368;
     font-size: 14px;
-    margin-bottom: 10px;
+    line-height: 1.5;
+    margin: 0 0 14px;
+}
+
+.mybook-container .book-meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 18px;
+    margin-bottom: 18px;
+}
+
+.mybook-container .book-meta div {
+    min-width: 0;
+}
+
+.mybook-container .book-meta span {
+    display: block;
+    color: #7a7a7a;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.mybook-container .book-meta strong {
+    display: block;
+    color: #222;
+    font-size: 14px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.mybook-container .status-badge {
+    flex: 0 0 auto;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    color: #3f3f46;
+    background: #f1f1f1;
+}
+
+.mybook-container .status-borrowed {
+    color: #075985;
+    background: #e0f2fe;
+}
+
+.mybook-container .status-overdue {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+.mybook-container .status-returned {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.mybook-container .status-pending,
+.mybook-container .status-requested {
+    color: #854d0e;
+    background: #fef3c7;
+}
+
+.mybook-container .status-return_requested {
+    color: #0f766e;
+    background: #ccfbf1;
+}
+
+.mybook-container .book-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    flex-wrap: wrap;
 }
 
 /* BUTTON */
 .btn-detail {
     display: inline-block;
-    margin-top: 10px;
+    margin-top: 0;
     background: black;
     color: white;
-    padding: 10px 16px;
+    padding: 10px 14px;
     border-radius: 8px;
     text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
     transition: 0.2s;
 }
 
 .btn-detail:hover {
     background: #333;
+}
+
+.btn-return {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.btn-return:hover {
+    background: #cf3f31;
+}
+
+.status-note {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.status-note.warning {
+    color: #b45309;
+}
+
+.status-note.muted {
+    color: #6b7280;
 }
 
 /* EMPTY */
@@ -97,4 +230,27 @@
     text-decoration: none;
     color: black;
     font-weight: 500;
+}
+
+@media (max-width: 560px) {
+    .mybook-container {
+        padding: 18px;
+    }
+
+    .mybook-container .book-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mybook-container .book-card {
+        flex-direction: column;
+    }
+
+    .mybook-container .book-image {
+        width: 140px;
+        flex-basis: auto;
+    }
+
+    .mybook-container .book-meta {
+        grid-template-columns: 1fr;
+    }
 }

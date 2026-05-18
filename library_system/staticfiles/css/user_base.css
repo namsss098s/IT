@@ -342,6 +342,15 @@ body {
     transform: translateY(-5px);
 }
 
+.book-card-link {
+    color: inherit;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
 /* IMAGE */
 .book-card img {
     width: 150px;
@@ -379,4 +388,128 @@ body {
 .add-btn:hover {
     background: black;
     color: white;
+}
+
+/* Scoped book list card overrides */
+.book-page .book-header {
+    gap: 20px;
+}
+
+.book-page .book-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.book-page .book-card {
+    min-height: 390px;
+    padding: 14px;
+    border: 1px solid #e8e8e8;
+    border-radius: 10px;
+    cursor: default;
+    align-items: stretch;
+    justify-content: space-between;
+}
+
+.book-page .book-card-link {
+    align-items: stretch;
+    gap: 12px;
+    flex: 1;
+}
+
+.book-page .book-cover {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    max-height: 230px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f3f3f3;
+    border: 1px solid #ececec;
+}
+
+.book-page .book-card img {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    object-fit: cover;
+    display: block;
+}
+
+.book-page .book-info {
+    text-align: left;
+    min-width: 0;
+}
+
+.book-page .book-info h4 {
+    font-size: 16px;
+    line-height: 1.35;
+    margin-bottom: 6px;
+    color: #111;
+}
+
+.book-page .book-info p {
+    min-height: 34px;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #666;
+}
+
+.book-page .book-card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+.book-page .book-card-meta span {
+    color: #777;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.book-page .book-card-meta strong {
+    flex: 0 0 auto;
+    color: #166534;
+    background: #dcfce7;
+    padding: 5px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+}
+
+.book-page .add-btn {
+    display: block;
+    width: 100%;
+    margin-top: 14px;
+    padding: 10px 12px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+}
+
+.book-page .add-form {
+    width: 100%;
+}
+
+@media (max-width: 640px) {
+    .book-page {
+        padding: 20px;
+    }
+
+    .book-page .book-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .book-page .header-actions {
+        flex-direction: column;
+    }
+
+    .book-page .search-box,
+    .book-page .cart-btn {
+        width: 100%;
+    }
 }

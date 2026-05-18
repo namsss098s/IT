@@ -218,7 +218,7 @@ def update_overdue_tickets():
 def is_librarian(user):
     try:
         return user.staffprofile.role in ['admin', 'librarian']
-    except:
+    except AttributeError:
         return False
     
 def my_books_view(request):

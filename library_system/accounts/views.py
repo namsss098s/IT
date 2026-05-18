@@ -3,8 +3,8 @@ import time
 from circulation.models import BorrowTransaction
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.conf import settings
@@ -12,6 +12,15 @@ from django.utils import timezone
 from books.models import Book
 from circulation.models import BorrowTransaction as BorrowRecord
 from .models import StaffProfile
+from django.contrib import messages
+
+
+def can_manage_members(user):
+    if not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    return getattr(getattr(user, 'staffprofile', None), 'role', None) in ['admin', 'librarian']
 
 
 # ================= LOGIN =================
@@ -53,7 +62,7 @@ def admin_dashboard(request):
     profile, _ = StaffProfile.objects.get_or_create(user=request.user)
 
     # ROLE CHECK
-    if not (request.user.is_superuser or profile.is_manager):
+    if not (request.user.is_superuser or profile.role in ['admin', 'librarian']):
         return redirect('accounts:user_dashboard')
 
     # ===== BASIC STATS =====
@@ -64,16 +73,18 @@ def admin_dashboard(request):
 
     total_books = Book.objects.count()
 
-    total_borrowed = BorrowRecord.objects.filter(status='borrowed').count()
-    total_returned = BorrowRecord.objects.filter(status='returned').count()
-
-    overdue = BorrowRecord.objects.filter(
-        status='borrowed',
+    total_borrowed = BorrowRecord.objects.filter(status='BORROWED').exclude(
         due_date__lt=timezone.now()
     ).count()
+    total_returned = BorrowRecord.objects.filter(status='RETURNED').count()
 
-    overdue_records = BorrowRecord.objects.filter(
-        status='borrowed',
+    overdue = BorrowRecord.objects.filter(
+        status='BORROWED',
+        due_date__lt=timezone.now()
+    ).count() + BorrowRecord.objects.filter(status='OVERDUE').count()
+
+    overdue_records = BorrowRecord.objects.filter(status='OVERDUE') | BorrowRecord.objects.filter(
+        status='BORROWED',
         due_date__lt=timezone.now()
     )
 
@@ -92,7 +103,7 @@ def admin_dashboard(request):
         data.append(count)
 
     # ===== 🥧 CHART: STATUS =====
-    pending = BorrowRecord.objects.filter(status='pending').count()
+    pending = BorrowRecord.objects.filter(status='PENDING').count()
     borrowed = total_borrowed
     returned = total_returned
     overdue_count = overdue
@@ -118,11 +129,14 @@ def admin_dashboard(request):
     })
 
 
+@login_required
 def user_dashboard(request):
 
     borrowed_count = BorrowTransaction.objects.filter(
         member=request.user,
         status="BORROWED"
+    ).exclude(
+        due_date__lt=timezone.now()
     ).count()
 
     returned_count = BorrowTransaction.objects.filter(
@@ -133,6 +147,10 @@ def user_dashboard(request):
     overdue_count = BorrowTransaction.objects.filter(
         member=request.user,
         status="OVERDUE"
+    ).count() + BorrowTransaction.objects.filter(
+        member=request.user,
+        status="BORROWED",
+        due_date__lt=timezone.now()
     ).count()
 
     total_books = Book.objects.count()
@@ -296,6 +314,7 @@ def signup_view(request):
     return render(request, 'sign_up.html')
 
 @login_required
+@user_passes_test(can_manage_members)
 def member_list(request):
 
     users = User.objects.filter(
@@ -307,6 +326,7 @@ def member_list(request):
         'users': users
     })
 @login_required
+@user_passes_test(can_manage_members)
 def member_create(request):
     if request.method == "POST":
         username = request.POST.get('username')
@@ -335,6 +355,7 @@ def member_create(request):
     return redirect('accounts:member_list')
 
 @login_required
+@user_passes_test(can_manage_members)
 def member_update(request, pk):
     user = get_object_or_404(User, pk=pk)
     profile, _ = StaffProfile.objects.get_or_create(user=user)
@@ -353,7 +374,7 @@ def member_update(request, pk):
     return redirect('accounts:member_list')
 
 @login_required
-@login_required
+@user_passes_test(can_manage_members)
 def member_delete(request, pk):
     user = get_object_or_404(User, pk=pk)
 
@@ -363,6 +384,7 @@ def member_delete(request, pk):
     return redirect('accounts:member_list')
 
 @login_required
+@user_passes_test(can_manage_members)
 def member_json(request, pk):
     user = get_object_or_404(User.objects.select_related('staffprofile'), pk=pk)
 
@@ -385,3 +407,63 @@ def profile_view(request):
     return render(request, 'profile.html', {
         'user': user
     })
+# =========================
+# UPDATE PROFILE
+# =========================
+@login_required
+def update_profile(request, user_id):
+
+    user = get_object_or_404(User, id=user_id)
+
+    # SECURITY
+    if request.user != user:
+        messages.error(request, "Permission denied.")
+        return redirect('accounts:profile')
+
+    if request.method == "POST":
+
+        user.username = request.POST.get('username')
+        user.email = request.POST.get('email')
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+
+        user.save()
+
+        messages.success(request, "Profile updated successfully.")
+
+    return redirect('accounts:profile')
+
+
+# =========================
+# CHANGE PASSWORD
+# =========================
+@login_required
+def change_password(request, user_id):
+
+    user = get_object_or_404(User, id=user_id)
+
+    # SECURITY
+    if request.user != user:
+        messages.error(request, "Permission denied.")
+        return redirect('accounts:profile')
+
+    if request.method == "POST":
+
+        new_password = request.POST.get('new_password')
+
+        if not new_password:
+            messages.error(request, "Password cannot be empty.")
+            return redirect('accounts:profile')
+
+        # CHANGE PASSWORD
+        user.set_password(new_password)
+        user.save()
+
+        # KEEP USER LOGGED IN
+        update_session_auth_hash(request, user)
+
+        messages.success(request, "Password changed successfully.")
+
+        return redirect('accounts:profile')
+
+    return redirect('accounts:profile')

@@ -4,24 +4,54 @@ from .models import Book, Edition
 
 # 📚 BOOK FORM
 class BookForm(forms.ModelForm):
+
     class Meta:
+
         model = Book
+
         fields = [
             'title',
             'category',
             'description',
             'publisher',
             'price',
+            'cover',      # 🔥 NEW
             'authors'
         ]
 
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'category': forms.Select(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'publisher': forms.TextInput(attrs={'class': 'form-control'}),
-            'price': forms.NumberInput(attrs={'class': 'form-control'}),
-            'authors': forms.SelectMultiple(attrs={'class': 'form-control'}),
+
+            'title': forms.TextInput(
+                attrs={'class': 'form-control'}
+            ),
+
+            'category': forms.Select(
+                attrs={'class': 'form-control'}
+            ),
+
+            'description': forms.Textarea(
+                attrs={
+                    'class': 'form-control',
+                    'rows': 3
+                }
+            ),
+
+            'publisher': forms.TextInput(
+                attrs={'class': 'form-control'}
+            ),
+
+            'price': forms.NumberInput(
+                attrs={'class': 'form-control'}
+            ),
+
+            # 🔥 image input
+            'cover': forms.ClearableFileInput(
+                attrs={'class': 'form-control'}
+            ),
+
+            'authors': forms.SelectMultiple(
+                attrs={'class': 'form-control'}
+            ),
         }
 
 

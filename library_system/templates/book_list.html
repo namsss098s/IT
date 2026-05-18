@@ -18,31 +18,43 @@
     <div class="book-grid">
 
         {% for edition in editions %}
-        <div class="book-card"
-            onclick="openModal(
-                '{{ edition.book.title|escapejs }}',
-                '{{ edition.book.author|escapejs }}',
-                '{{ edition.book.category.name|escapejs }}',
-                '{{ edition.book.publisher|escapejs }}',
-                '{{ edition.available_quantity }}',
-                `{{ edition.book.description|escapejs }}`,
-                '{{ edition.book.image.url }}'
-            )">
+        {% with book=edition.book %}
+        <div class="book-card">
 
-            <img src="{{ edition.book.image.url }}" alt="">
+            <a href="{% url 'book_detail' book.id %}" class="book-card-link">
+                <div class="book-cover">
+                    {% if book.cover %}
+                        <img src="{{ book.cover.url }}" alt="{{ book.title }}">
+                    {% else %}
+                        <img src="{% static 'images/book-icon.png' %}" alt="{{ book.title }}">
+                    {% endif %}
+                </div>
 
-            <div class="book-info">
-                <h4>{{ edition.book.title }}</h4>
-                <p>{{ edition.book.author }}</p>
-            </div>
-
-            <a href="{% url 'circulation:ticket_add' edition.id %}"
-            class="add-btn"
-            onclick="event.stopPropagation();">
-                Add to cart
+                <div class="book-info">
+                    <h4>{{ book.title }}</h4>
+                    <p>
+                        {% for author in book.authors.all %}
+                            {{ author.name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                        Unknown author
+                    {% endfor %}
+                    </p>
+                    <div class="book-card-meta">
+                        <span>{{ book.category.name|default:"No category" }}</span>
+                        <strong>{{ edition.available_quantity }} available</strong>
+                    </div>
+                </div>
             </a>
 
+            <form method="POST" action="{% url 'circulation:ticket_add' edition.id %}" class="add-form">
+                {% csrf_token %}
+                <button type="submit" class="add-btn">
+                    Add to cart
+                </button>
+            </form>
+
         </div>
+        {% endwith %}
         {% endfor %}
 
     </div>

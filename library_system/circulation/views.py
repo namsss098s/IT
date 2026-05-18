@@ -42,7 +42,7 @@ def ticket_management_view(request):
 @login_required
 def add_to_ticket_view(request, edition_id):
 
-    if request.method != "GET":
+    if request.method != "POST":
         return redirect('circulation:ticket_management')
 
     result = add_book_to_ticket(
@@ -72,7 +72,7 @@ def add_to_ticket_view(request, edition_id):
 @login_required
 def remove_from_ticket_view(request, edition_id):
 
-    if request.method != "GET":
+    if request.method != "POST":
         return redirect('circulation:ticket_management')
 
     result = remove_book_from_ticket(
@@ -160,7 +160,8 @@ def borrow_history_view(request):
     ).select_related(
         'member', 'staff'
     ).prefetch_related(
-        'items__edition__book'
+        'items__edition__book__category',
+        'items__edition__book__authors'
     ).order_by('-id')
 
     return render(request, 'borrow_history.html', {
@@ -172,7 +173,7 @@ def my_books_view(request):
         BorrowTransaction.objects
         .filter(
             member=request.user,
-            status__in=['PENDING', 'BORROWED', 'OVERDUE']
+            status__in=['PENDING', 'REQUESTED', 'BORROWED', 'RETURN_REQUESTED', 'OVERDUE']
         )
         .prefetch_related('items__edition__book')
     )
@@ -186,10 +187,12 @@ def my_books_view(request):
 def rules_view(request):
     borrow_rule = BorrowRule.objects.first()
     fine_rule = FineRule.objects.first()
+    rules = [rule for rule in [borrow_rule, fine_rule] if rule]
 
     return render(request, 'rules.html', {
         'borrow_rule': borrow_rule,
-        'fine_rule': fine_rule
+        'fine_rule': fine_rule,
+        'rules': rules
     })
 
 def update_overdue_tickets():
