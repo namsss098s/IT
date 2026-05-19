@@ -206,14 +206,39 @@ def category_delete(request, pk):
 
     return redirect('manage_page')
 
+from django.db.models import Q
+from django.contrib.auth.decorators import login_required
+
 from books.models import Edition
+
 
 @login_required
 def user_book_list(request):
-    editions = Edition.objects.select_related('book', 'book__category') \
-        .prefetch_related('book__authors')
 
-    return render(request, 'book_list.html', {
-        'editions': editions
-    })
+    editions = Edition.objects.select_related(
+        'book',
+        'book__category'
+    ).prefetch_related(
+        'book__authors'
+    )
 
+    query = request.GET.get('q')
+
+    if query:
+
+        editions = editions.filter(
+
+            Q(book__title__icontains=query) |
+            Q(book__publisher__icontains=query) |
+            Q(book__authors__name__icontains=query) |
+            Q(book__category__name__icontains=query)
+
+        ).distinct()
+
+    return render(
+        request,
+        'book_list.html',
+        {
+            'editions': editions
+        }
+    )

@@ -7,12 +7,33 @@
 
     <!-- HEADER -->
     <div class="book-header">
+
         <h2>Library Books</h2>
 
         <div class="header-actions">
-            <input type="text" placeholder="Search..." class="search-box">
-            <a href="#" class="cart-btn">🛒 Your Cart</a>
+
+            <form method="GET" class="search-form">
+
+                <input
+                    type="text"
+                    name="q"
+                    placeholder="Search books..."
+                    class="search-box"
+                    value="{{ request.GET.q }}"
+                >
+
+                <button type="submit" class="search-btn">
+                    Search
+                </button>
+
+            </form>
+
+            <a href="{% url 'circulation:my_books' %}" class="cart-btn">
+                🛒 Your Cart
+            </a>
+
         </div>
+
     </div>
 
     <div class="book-grid">

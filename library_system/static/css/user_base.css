@@ -494,6 +494,13 @@ body {
     width: 100%;
 }
 
+.search-btn{
+    padding:10px 16px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
 @media (max-width: 640px) {
     .book-page {
         padding: 20px;
